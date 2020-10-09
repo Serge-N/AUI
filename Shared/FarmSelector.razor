@@ -1,0 +1,91 @@
+﻿@using System.Net.Http
+@using System.Diagnostics;
+@using AUI.Shared.Classes.General
+
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@if (FarmStatus)
+{
+    <div class="col-auto my-1">
+        <select class="form-control mr-sm-2" id="SelectFarm" @bind="ID" @onclick="IDSaver">
+            <option selected disabled value="">Choose Farm</option>
+            @foreach (var farm in Farms)
+            {
+                <option class="col-form-label" value=@farm.ID>@farm.Name</option>
+            }
+        </select>
+    </div>
+}
+else
+{
+    @Message
+}
+@code {
+    private List<Farms> Farms;
+    private string Message { get; set; }
+    private string ID { get; set; }
+    bool FarmStatus { get; set; }
+    [Parameter]
+    public string UserRole { get; set; }
+    [Parameter]
+    public string GivenID { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Farms = await Http.GetFromJsonAsync<List<Farms>>("api/farms");
+            FarmStatus = true;
+        }
+        catch
+        {
+            await localStorage.RemoveItemAsync("FarmStatus");
+        }
+
+        if (UserRole != "Admin" && Farms != null && GivenID != null)
+        {
+            
+            //If ordinary used force single farm menu
+            int Id = int.Parse(GivenID);
+            //Remove all except the one that matches the userID
+            foreach (var farm in Farms)
+            {
+                if (farm.ID != Id)
+                    Farms.Remove(farm);
+            }
+
+            await localStorage.SetItemAsync("FarmID", GivenID);
+        }
+        if (Farms.Count == 0)
+        {
+            FarmStatus = false;
+            Message = "Add a farm";
+        }
+
+        await localStorage.SetItemAsync("FarmStatus", FarmStatus);
+    }
+
+    protected async void IDSaver()
+    {
+        //Change the farm if the admin admin
+        if(ID != null)
+        {
+            await localStorage.SetItemAsync("FarmID", ID);
+            Navigation.NavigateTo("refresh");
+        }
+        try
+        {
+            Farms = await Http.GetFromJsonAsync<List<Farms>>("api/farms");
+
+        }
+        catch (NotSupportedException exception)
+        {
+            Debug.WriteLine($"Error: {exception}");
+        }
+    }
+
+}

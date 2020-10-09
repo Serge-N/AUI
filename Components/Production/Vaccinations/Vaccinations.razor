@@ -1,0 +1,96 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader;
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+@if (Animal.Equals("Cattle"))
+{
+    Address = "cattle/vaccinations";
+
+}
+else if (Animal.Equals("Pigs"))
+{
+    Address = "pigs/vaccinations";
+}
+else if (Animal.Equals("Goats"))
+{
+    Address = "goats/vaccinations";
+}
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-inline-flex"><b>Vaccinations</b></div>
+        <div class="d-inline-flex">
+            <NavLink class="nav-link" href=@Address>
+                <span class="oi oi-chevron-right" aria-hidden="true" style="font-size: 10px;"></span>
+            </NavLink>
+        </div>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between flex-row">
+                Date:<span class="justify-content-end"> @Date</span>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between flex-row">
+                Purpose:<span class="justify-content-end"> @Purpose</span>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between flex-row">
+                Drug:<span class="justify-content-end">@Drug</span>
+            </div>
+        </li>
+
+    </ul>
+</div>
+@code {
+    // Get the animal Type for better Rendering
+    [Parameter]
+    public string Animal { get; set; }
+    private string Address { get; set; }
+    bool FarmStatus;
+    private string Purpose;
+    private string Date;
+    private string Drug;
+    List<AUI.Shared.Classes.Production.Cows.Vaccination> vaccinations = null;
+    protected override async Task OnInitializedAsync()
+    {
+
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                vaccinations = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Vaccination>>($"api/Vaccinations/{FarmId}");
+                //Get closest day
+                Dictionary<int, int> Dates = new Dictionary<int, int>();
+                DateTime Today = DateTime.Now;
+                foreach (var vacc in vaccinations)
+                {
+                    var numberOfDays = vacc.Date - Today;
+                    //deal with today and upcoming events
+                    if ((int)numberOfDays.TotalDays >= 0)
+                        Dates.Add(vaccinations.IndexOf(vacc), (int)numberOfDays.TotalDays);
+                    //choose smallest number of days
+                    int smallestNumberOfDays = Dates.Any() ? Dates.Min(e => e.Value) : -1;
+                    if (smallestNumberOfDays != -1)
+                    {
+                        var requiredIndex = Dates.FirstOrDefault(e => e.Value == smallestNumberOfDays).Key;
+                        Purpose = vaccinations[requiredIndex].Purpose;
+                        Drug = vaccinations[requiredIndex].DrugName;
+                        var date = vaccinations[requiredIndex].Date;
+                        Date = $"{date: dd - MMMM - yyyy}";
+                    }
+                }
+            }
+        }
+    }
+}

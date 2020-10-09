@@ -1,0 +1,37 @@
+﻿@if (Animal.Equals("Cattle"))
+{
+    Castrated = "Bullocks";
+    Address = "cattle/fertility";
+}
+else if (Animal.Equals("Pigs"))
+{
+    Castrated = "Barrows";
+    Address = "pigs/fertility";
+}
+else if (Animal.Equals("Goats"))
+{
+    Castrated = "Wethers";
+    Address = "goats/fertility";
+}
+<div class="card">
+    <div class="card-header">
+        <div class="d-inline-flex"><b>Fertility</b></div>
+        <div class="d-inline-flex">
+            <NavLink class="nav-link" href=@Address>
+                <span class="oi oi-chevron-right" aria-hidden="true" style="font-size: 10px;"></span>
+            </NavLink>
+        </div>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">@Castrated: </li>
+        <li class="list-group-item">Deaths:</li>
+        <li class="list-group-item">Average per Animal:</li>
+    </ul>
+</div>
+@code {
+    // Get the animal Type for better Rendering
+    [Parameter]
+    public string Animal { get; set; }
+    private string Address { get; set; }
+    private string Castrated { get; set; }
+}

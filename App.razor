@@ -1,0 +1,23 @@
+
+<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <NotAuthorized>
+                @if (!context.User.Identity.IsAuthenticated)
+                {
+                    <RedirectToLogin />
+                }
+                else
+                {
+                    <_403 />
+                }
+            </NotAuthorized>
+        </AuthorizeRouteView>
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(LoginLayerout)">
+            <_404 />
+        </LayoutView>
+    </NotFound>
+</Router>
+

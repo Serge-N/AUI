@@ -1,0 +1,17 @@
+﻿@inject NavigationManager Navigation
+@layout LoginLayerout
+@page "/500"
+
+<div class="w-100 text-center">
+    <h1 class="pt-4" style="font-size: 10em; font-weight: bolder; color: darkgreen;">500</h1>
+    <h1>Internal Server Error, all humans make mistakes, even when coding...</h1>
+    <img src="https://thumbs.gfycat.com/DifficultLimpingBubblefish-small.gif" alt="stop" class="mx-2 w-25" />
+    <div><button class="btn btn-outline-success my-3" @onclick="Home">Home</button></div>
+</div>
+
+@code {
+    private void Home(MouseEventArgs args)
+    {
+        Navigation.NavigateTo("/");
+    }
+}

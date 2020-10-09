@@ -1,0 +1,66 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader;
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+@if (vaccinations == null)
+{
+    <p><em>Loading...vaccine records for @Animal</em></p>
+}
+else
+{
+    <div class="table-responsive-sm">
+        <table class="table table-striped table-hover">
+            <caption>List of all Vaccination for @Animal</caption>
+            <thead class="thead-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Purpose</th>
+                    <th>Drug</th>
+                    <th>Quantity</th>
+                    <th>Drug Units</th>
+                    <th>Remarks</th>
+                    <th>Done</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var vaccination in vaccinations)
+                {
+                <tr>
+                    <td>@vaccination.Date.ToShortDateString()</td>
+                    <td>@vaccination.Purpose</td>
+                    <td>@vaccination.DrugName</td>
+                    <td>@vaccination.DrugQuality</td>
+                    <td>@vaccination.DrugUnits</td>
+                    <td>@vaccination.Remark</td>
+                    <td>@vaccination.Done</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>}
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    bool FarmStatus;
+    List<AUI.Shared.Classes.Production.Cows.Vaccination> vaccinations = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                var vacclist = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Vaccination>>($"api/Vaccinations/{FarmId}");
+                //sort by nearest date
+                vaccinations = new List<Shared.Classes.Production.Cows.Vaccination>(vacclist.OrderByDescending(e => e.Date));
+            }
+        }
+    }
+
+}

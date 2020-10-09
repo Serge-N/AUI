@@ -1,0 +1,30 @@
+﻿@if (Animal.Equals("Cattle"))
+{
+    Young = "Calves";
+}
+else if (Animal.Equals("Pigs"))
+{
+    Young = "Piglets";
+}
+else if (Animal.Equals("Goats"))
+{
+    Young = "Kids";
+}
+<div class="card border-primary">
+    <div class="card-body">
+        <p class="card-text">Born this year</p>
+        <p class="card-text">Born this month</p>
+        <p class="card-text">Expected this year</p>
+    </div>
+    <div class="card-footer">
+        <small class="text-muted"><b>@Young</b></small>
+    </div>
+</div>
+@code {
+    // Get the animal Type for better Rendering
+    [Parameter]
+    public string Animal { get; set; }
+    private string Young { get; set; }
+    //The Titles and headers
+
+}

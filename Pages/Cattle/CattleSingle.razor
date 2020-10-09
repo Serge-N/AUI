@@ -1,0 +1,46 @@
+﻿@page "/cattle/{ID:long}"
+
+<h3>Cattle @ID detail </h3>
+
+<p>Cattle, Pedigree and Growth</p>
+<AUI.Components.Production.Animals.SingleAnimal Animal="Cattle" ID=@ID />
+
+<AUI.Components.Production.Animals.SingleParent Animal="Cattle" ID=@ID/>
+
+<AUI.Components.Production.Animals.AnimalGrowth Animal="Cattle" ID=@ID/>
+
+
+
+<p>Fertilies, Food and Vaccinations</p>
+
+<div class="btn-toolbar mb-1" role="toolbar">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">+ Fetility</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">± Fetility</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">👁 Fetility</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">- Fetility</button>
+    </div>
+</div>
+
+<div class="btn-toolbar mb-1" role="toolbar">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">+ Health</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">± Health</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">👁 Health</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">- Health</button>
+    </div>
+</div>
+
+<div class="btn-toolbar mb-1" role="toolbar">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">+ Special Diet</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">± Special Diet</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">👁 Special Diet</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddAnimal">- Special Diet</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public long ID { get; set; }
+}

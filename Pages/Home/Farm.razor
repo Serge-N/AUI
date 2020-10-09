@@ -1,0 +1,383 @@
+﻿@using System.Net.Http
+@using AUI.Shared.Classes.General
+@using System.Diagnostics;
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<AuthorizeView Roles="Admin">
+    <div class="btn-toolbar mb-1" role="toolbar">
+        <div class="btn-group" role="group">
+            <button type="button" @onclick="ClearValues" class="btn btn-outline-success" data-toggle="modal" data-target="#AddFarm">+ Farm</button>
+            <button type="button" @onclick="ClearValues" class="btn btn-outline-success" data-toggle="modal" data-target="#EditFarm">± Farm</button>
+            <button type="button" @onclick="ClearValues" class="btn btn-outline-success" data-toggle="modal" data-target="#RemoveFarm">- Farm</button>
+        </div>
+    </div>
+</AuthorizeView>
+
+<!-- Add Farm -->
+@if (ReadyToAdd)
+{
+    <div class="modal fade" id="AddFarm" tabindex="-1" role="dialog" aria-labelledby="Add New Farm" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="AddFarm">
+                        Add New Farm
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <EditForm Model="@FarmAdd" OnValidSubmit="@AddFarm">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FarmName">Name </label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="FarmName" @bind-Value="@FarmAdd.Name" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => FarmAdd.Name)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FarmWidth">Width (m)</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="FarmWidth" Class="form-control" @bind-Value="@FarmAdd.Width" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => FarmAdd.Width)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FarmLength">Length (m)</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="FarmLength" Class="form-control" @bind-Value="@FarmAdd.Length" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => FarmAdd.Length)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FarmIp">Intial Price(ZMW)</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="FarmFIp" Class="form-control" @bind-Value="@FarmAdd.InitialCost" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => FarmAdd.InitialCost)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FarmPD">Purchase Date</label>
+                            <div class="col-sm-8">
+                                <InputDate Id="FarmID" Class="form-control" @bind-Value="@FarmAdd.DoP" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => FarmAdd.DoP)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FarmDistric">District </label>
+                            <div class="col-sm-8">
+                                <InputText Id="FarmDistrict" Class="form-control" @bind-Value="@FarmAdd.District" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => FarmAdd.District)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="SelectProvince">Province</label>
+                            <div class="col-sm-8">
+                                <InputSelect id="SelectProvince" Class="form-control" @bind-Value="@FarmAdd.Province">
+                                    <option selected disabled value="">Select Province</option>
+                                    @foreach (var pro in Province)
+                                        {
+                                        <option value="@pro">@pro</option>
+                                        }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FarmOwner">Owner</label>
+                            <div class="col-sm-8">
+                                <InputText Id="FarmOwner" Class="form-control" @bind-Value="@FarmAdd.Owner" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => FarmAdd.Owner)" />
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        @if (AddStatus != null)
+                        {
+                            <span class="pl-5"><b>@AddStatus</b></span>
+                        }
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-success" type="submit">Save</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Farms != null)
+{
+
+    <!-- Edit Farm -->
+    <div class="modal fade" id="EditFarm" tabindex="-1" role="dialog" aria-labelledby="Editing selected Farm" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="EditFarm">
+                        Edit @Farms.Name
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <EditForm Model="@Farms" OnValidSubmit="@EditFarm">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FName">Name </label>
+                            <div class="col-sm-8">
+                                <InputText Id="FName" placeholder="@Farms.Name" Class="form-control" @bind-Value="@Farms.Name" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Farms.Name)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FWidth">Width (m)</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="FWidth" placeholder="@Farms.Width" Class="form-control" @bind-Value="@Farms.Width" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Farms.Width)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FLength">Length (m)</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="FLength" placeholder="@Farms.Length" Class="form-control" @bind-Value="@Farms.Length" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Farms.Length)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FIp">Intial Price(ZMW)</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="FIp" placeholder="@Farms.InitialCost" Class="form-control" @bind-Value="@Farms.InitialCost" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Farms.InitialCost)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FPD">Purchase Date</label>
+                            <div class="col-sm-8">
+                                <InputDate Id="FID" placeholder="@Farms.DoP" Class="form-control" @bind-Value="@Farms.DoP" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Farms.DoP)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FDistric">District </label>
+                            <div class="col-sm-8">
+                                <InputText Id="FDistrict" placeholder="@Farms.District" Class="form-control" @bind-Value="@Farms.District" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Farms.District)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="SelectPro">Province</label>
+                            <div class="col-sm-8">
+                                <InputSelect id="SelectPro" Class="form-control" @bind-Value="@Farms.Province">
+                                    <option selected disabled value="">Select Province</option>
+                                    @foreach (var pro in Province)
+                                        {
+                                        <option value="@pro">@pro</option>
+                                        }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="FOwner">Owner </label>
+                            <div class="col-sm-8">
+                                <InputText Id="FOwner" placeholder="@Farms.Owner" Class="form-control" @bind-Value="@Farms.Owner" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Farms.Owner)" />
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        @if (EditStatus != null)
+                        {
+                            <span class="pl-5"><b>@EditStatus</b></span>
+                        }
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-success" type="submit">Save</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remove Farm -->
+    <div class="modal fade" id="RemoveFarm" tabindex="-1" role="dialog" aria-labelledby="Remove farm" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="RemoveFarm">
+                        Remove @Farms.Name
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="RemoveFarm">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <EditForm Model="@Farms" OnValidSubmit="@RemoveFarm">
+                    <div class="modal-body">
+                        <div class="form-group row pt-2">
+                            <label class="col-sm-4 col-form-label" for="FN">Confirm Name </label>
+                            <div class="col-sm-8">
+                                <InputText Id="FN" Class="form-control" @bind-Value="@FarmName" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        @if (RemoveStatus != null)
+                        {
+                            <span class="pl-5"><b>@RemoveStatus</b></span>
+                        }
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+
+}
+
+@code {
+    private string Id;
+    private string RemoveStatus { get; set; }
+    private string EditStatus { get; set; }
+    private string AddStatus { get; set; }
+    private string FarmName { get; set; }
+    private bool FarmStatus;
+    protected bool ReadyToAdd { get; set; }
+    private Farms Farms { get; set; }
+    private Farms FarmAdd { get; set; } = new Farms();
+    List<string> Province { get; } = new List<string>() {
+        "Central", "Copperbelt", "Eastern", "Luapula","Lusaka","Muchinga","Northern","North-Western","Southern","Western"
+
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        EditStatus = null;
+        FarmName = null;
+        RemoveStatus = null;
+        AddStatus = null;
+        ReadyToAdd = false;
+
+
+        Id = await localStorage.GetItemAsync<string>("FarmID");
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+
+
+        if (FarmStatus)
+        {
+            try
+            {
+                Farms = await Http.GetFromJsonAsync<Farms>($"api/farms/{Id}");
+
+            }
+            catch (NotSupportedException exception)
+            {
+                Debug.WriteLine($"Error: {exception}");
+            }
+        }
+    }
+
+    protected async Task RemoveFarm()
+    {
+        RemoveStatus = null;
+        if (FarmName != null)
+        {
+            FarmName = FarmName.Trim();
+            if (FarmName == Farms.Name)
+            {
+                var Deletion = await Http.DeleteAsync($"api/media/farms/{Id}");
+
+                RemoveStatus = Deletion.Content.ReadAsStringAsync().Result;
+
+                var result = await Http.DeleteAsync($"api/farms/{Id}");
+                RemoveStatus += result.IsSuccessStatusCode ? $"[{Farms.Name} is gone]" : $"[Failed to remove {Farms.Name}]";
+
+                await localStorage.RemoveItemAsync("FarmStatus");
+            }
+            else
+
+                RemoveStatus = $"{FarmName} is not the same as {Farms.Name}";
+
+        }
+
+    }
+
+    private async Task EditFarm()
+    {
+        EditStatus = null;
+        var edit = await Http.PutAsJsonAsync<Farms>($"api/farms/{Id}", Farms);
+        EditStatus = edit.IsSuccessStatusCode ? $"Updated {Farms.Name}" : $"Failed to update {Farms.Name}";
+    }
+
+    protected void ClearValues()
+    {
+        //when forms are closed data is not cleared hence this function
+        AddStatus = null;
+        EditStatus = null;
+        FarmName = null;
+        RemoveStatus = null;
+        ReadyToAdd = true;
+    }
+
+    private async Task AddFarm()
+    {
+        //Clear pevious Addstaus
+        AddStatus = null;
+        //Post requires Id =0 , because Db Assigns IDs
+        FarmAdd.ID = 0;
+        var add = await Http.PostAsJsonAsync<Farms>($"api/farms", FarmAdd);
+        AddStatus = add.IsSuccessStatusCode ? $"Added {FarmAdd.Name}" : $"Failed to add {FarmAdd.Name}";
+
+    }
+}

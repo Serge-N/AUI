@@ -1,0 +1,404 @@
+﻿@using System.IO;
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@using Tewr.Blazor.FileReader
+@using System.Security.Claims
+@using AUI.Shared.Classes.General
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+<div class="btn-toolbar mb-1" role="toolbar">
+    <div class="btn-group" role="group">
+        <button type="button" 
+                class="btn btn-outline-success" 
+                data-toggle="modal" 
+                data-target="#AddPicture" 
+                @onclick="async () => await Configure()">+ Image</button>
+        <button type="button" class="btn btn-outline-danger" 
+                data-toggle="modal" 
+                data-target="#RemovePicture"
+                @onclick="async () => await ReverseConfigure()">- Image</button>
+    </div>
+</div>
+
+<!-- Modal Save Picture Animal-->
+<div class="modal fade" id="AddPicture" tabindex="-1" role="dialog" aria-labelledby="Add Farm Pictures" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="AddPicture">
+                    Add @HeadMessage
+                </h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <EditForm Model="Pic" OnValidSubmit="@PostFile">
+                <div class="modal-body">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="Title">Title</label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control" id="PicTitle" @bind-Value="@Pic.Title" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Pic.Title)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="Title">Image</label>
+                        <div class="col-sm-8">
+                            <input Class="form-control-file" @ref="Xelement" type="file" id="Pic" @onchange="async () => await ReadFile()" required />
+                        </div>
+                    </div>
+                   
+                </div>
+                <div class="modal-footer">
+                    @if (Pic.Message != null)
+                    {
+                        <span class="pr-5"><b>@Pic.Message</b></span>
+                    }
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </EditForm>
+
+        </div>
+    </div>
+</div>
+
+@if (Removal.AvailablImages != null)
+{
+    <!-- Modal Remove Picture Animal-->
+    <div class="modal fade" id="RemovePicture" tabindex="-1" role="dialog" aria-labelledby="Remove Farm Pic" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="RemovePicture">
+                        Remove @HeadMessage
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <EditForm Model="Removal" OnValidSubmit="@DeleteFile">
+                    <div class="modal-body">
+
+                        <div class="col-auto my-1">
+                            <select class="form-control mr-sm-2" id="SelectImage" @bind="Removal.SelectedImage" required>
+                                <option selected disabled value="">Choose Picture</option>
+                                @foreach (var image in Removal.AvailablImages)
+                                {
+                                    <option class="col-form-label" value=@image>@System.IO.Path.GetFileNameWithoutExtension(image)</option>
+                                }
+                            </select>
+                        </div>
+                       
+                    </div>
+                    <div class="modal-footer">
+                        @if (Removal.MessageSummary != null)
+                        {
+                            <span class="pr-5"><b>@Removal.MessageSummary</b></span>
+                        }
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    [Parameter]
+    public string Focus { get; set; }
+    [Parameter]
+    public string Mode { get; set; }
+    [Parameter]
+    public string FormType { get; set; }
+    [Parameter]
+    public string AnimalType { get; set; }
+    [Parameter]
+    public long AnimalID { get; set; }
+
+
+    private Picture Pic = new Picture();
+    private ImageRemoval Removal = new ImageRemoval();
+    public ElementReference Xelement;
+    private string HeadMessage;
+    bool FarmStatus;
+
+
+    public async Task ReadFile()
+    {
+        var file = (await fileReaderService.CreateReference(Xelement).EnumerateFilesAsync()).FirstOrDefault();
+
+        if (file == null) return;
+
+        var fileInfo = await file.ReadFileInfoAsync();
+
+        Pic.FileName = fileInfo.Name;
+
+
+        // Read into RAM
+        using (var memoryStream = await file.CreateMemoryStreamAsync((int)fileInfo.Size))
+        {
+            // Copy store image into pic object
+            Pic.Stream = new MemoryStream(memoryStream.ToArray());
+            memoryStream.Close();
+        }
+    }
+
+    public async Task PostFile()
+    {
+
+        if (FarmStatus == true)
+        {
+            //create content headers
+            var content = new MultipartFormDataContent();
+            content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data");
+
+            //create content
+            content.Add(new StreamContent(Pic.Stream, (int)Pic.Stream.Length), "Picture", Pic.FileName);
+            content.Add(new StringContent(Pic.Title), "Title");
+            content.Add(new StringContent(Pic.Focus), "Focus");
+            content.Add(new StringContent(Pic.ID), "ID");
+            content.Add(new StringContent(Pic.FormType), "FormType");
+            content.Add(new StringContent(Pic.AnimalType), "AnimalType");
+            content.Add(new StringContent(Pic.Mode), "Mode");
+            content.Add(new StringContent(Pic.AnimalID.ToString()), "AnimalID");
+            //call to the server
+            var upload = await Http.PostAsync("api/media", content);
+
+            //get server response
+            if (upload.IsSuccessStatusCode)
+                Pic.Message = "Done";
+            else
+                Pic.Message = await upload.Content.ReadAsStringAsync();
+        }
+        else
+        {
+            if (Focus == "Farms")
+                Pic.Message = "No Farm Selected";
+        }
+    }
+
+    public async Task DeleteFile()
+    {
+        if (FarmStatus == true)
+        {
+            //Case 1: User Profile images => Focus[users]-[ID]-[Title]
+            if (Focus == "Users")
+            {
+                var authState = await authenticationStateTask;
+                var user = authState.User;
+
+                HeadMessage = $"Profile Picture";
+
+                string url = $"api/media/users/{user.FindFirst(c => c.Type == "ID")?.Value}/{Removal.SelectedImage}";
+
+                var U = await Http.DeleteAsync(url);
+
+                if (U.IsSuccessStatusCode)
+                    Removal.MessageSummary = U.Content.ReadAsStringAsync().Result;
+                else
+                    Removal.MessageSummary = $"Failed to delete {Removal.SelectedImage}";
+
+            }
+            else if (Focus == "Farms")
+            {
+
+                var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+
+                //Case 2: Farm images => Focus[farms]-[Id]-[Title]-FormType[farm]
+                if (FormType == "Farm")
+                {
+
+                    HeadMessage = $"Farm Picture";
+
+                    string url = $"api/media/farms/{FarmId}/farm/{Removal.SelectedImage}";
+
+                    var F = await Http.DeleteAsync(url);
+
+                    if (F.IsSuccessStatusCode)
+                        Removal.MessageSummary = F.Content.ReadAsStringAsync().Result;
+                    else
+                        Removal.MessageSummary = $"Failed to delete {Removal.SelectedImage}";
+                }
+
+                else if (FormType == "Animals")
+                {
+
+                    //Case 3: Group animal images => Focus[farms]-[Id]-[Title]-FormType[animals]-AnimalType[Cattle]-Mode[Many]
+                    if (Mode == "Many")
+                    {
+                        HeadMessage = $"Group {AnimalType} Picture";
+
+                        string url = $"api/media/farms/{FarmId}/animals/{AnimalType}/many/{Removal.SelectedImage}";
+
+                        var AM = await Http.DeleteAsync(url);
+
+                        if (AM.IsSuccessStatusCode)
+                            Removal.MessageSummary = AM.Content.ReadAsStringAsync().Result;
+                        else
+                            Removal.MessageSummary = $"Failed to delete {Removal.SelectedImage}";
+
+                    }
+                    else if (Mode == "Single")
+                    {
+                        //Case 4: Single animal images => Focus[farms]-[Id]-[Title]-FormType[animals]-AnimalType[Cattle]-Mode[Single]-[AnimalID]-
+
+                        HeadMessage = $"{AnimalType} Picture";
+
+                        string url = $"api/media/farms/{FarmId}/animals/{AnimalType}/single/{AnimalID}/{Removal.SelectedImage}";
+
+                        var AS = await Http.DeleteAsync(url);
+
+                        if (AS.IsSuccessStatusCode)
+                            Removal.MessageSummary = AS.Content.ReadAsStringAsync().Result;
+                        else
+                            Removal.MessageSummary = $"Failed to delete {Removal.SelectedImage}";
+                    }
+                }
+            }
+        }
+    }
+
+    //The best is use another function to configure this
+    protected async Task Configure()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            //Case 1: User Profile images => Focus[users]-[ID]-[Title]
+            if (Focus == "Users")
+            {
+                var authState = await authenticationStateTask;
+                var user = authState.User;
+                Pic.Title = user.FindFirst(c => c.Type == ClaimTypes.GivenName)?.Value;
+                Pic.Focus = Focus.ToLower();
+                Pic.ID = user.FindFirst(c => c.Type == "ID")?.Value;
+                Pic.Mode = "T";
+                Pic.AnimalID = 0;
+                Pic.AnimalType = "T";
+                Pic.FormType = "T";
+                HeadMessage = $"Profile Picture for {Pic.Title}";
+            }
+            else if (Focus == "Farms")
+            {
+
+                Pic.Focus = Focus;
+                Pic.ID = await localStorage.GetItemAsync<string>("FarmID");
+                Pic.FormType = FormType;
+
+                //Case 2: Farm images => Focus[farms]-[Id]-[Title]-FormType[farm]
+                if (FormType == "Farm")
+                {
+
+                    Pic.Mode = "T";
+                    Pic.AnimalID = 0;
+                    Pic.AnimalType = "T";
+                    HeadMessage = $"Farm Picture";
+                }
+
+                else if (FormType == "Animals")
+                {
+                    Pic.Mode = Mode;
+                    Pic.AnimalType = AnimalType;
+
+                    //Case 3: Group animal images => Focus[farms]-[Id]-[Title]-FormType[animals]-AnimalType[Cattle]-Mode[Many]
+                    if (Mode == "Many")
+                    {
+                        Pic.AnimalID = 0;
+                        HeadMessage = $"Group {AnimalType} Picture";
+                    }
+                    else if (Mode == "Single")
+                    {
+                        System.Diagnostics.Debug.WriteLine($"-----------------------{AnimalID}---------------------");
+                        //Case 4: Single animal images => Focus[farms]-[Id]-[Title]-FormType[animals]-AnimalType[Cattle]-Mode[Single]-[AnimalID]-
+                        Pic.AnimalID = AnimalID;
+
+                        HeadMessage = $"{AnimalType} Picture";
+                    }
+                }
+
+            }
+        }
+        else
+        {
+            Pic.Message = "NO Farms";
+        }
+    }
+
+    protected async Task ReverseConfigure()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            //Case 1: User Profile images => Focus[users]-[ID]-[Title]
+            if (Focus == "Users")
+            {
+                var authState = await authenticationStateTask;
+                var user = authState.User;
+
+                HeadMessage = $"Profile Picture";
+
+                string url = $"api/media/users/{user.FindFirst(c => c.Type == "ID")?.Value}";
+
+                Removal.AvailablImages = await Http.GetFromJsonAsync<List<string>>(url);
+
+            }
+            else if (Focus == "Farms")
+            {
+
+                var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+
+                //Case 2: Farm images => Focus[farms]-[Id]-[Title]-FormType[farm]
+                if (FormType == "Farm")
+                {
+
+                    HeadMessage = $"Farm Picture";
+
+                    string url = $"api/media/farms/{FarmId}/farm";
+
+                    Removal.AvailablImages = await Http.GetFromJsonAsync<List<string>>(url);
+
+                }
+
+                else if (FormType == "Animals")
+                {
+
+                    //Case 3: Group animal images => Focus[farms]-[Id]-[Title]-FormType[animals]-AnimalType[Cattle]-Mode[Many]
+                    if (Mode == "Many")
+                    {
+                        HeadMessage = $"Group {AnimalType} Picture";
+
+                        string url = $"api/media/farms/{FarmId}/animals/{AnimalType}/many";
+
+                        Removal.AvailablImages = await Http.GetFromJsonAsync<List<string>>(url);
+
+
+                    }
+                    else if (Mode == "Single")
+                    {
+                        //Case 4: Single animal images => Focus[farms]-[Id]-[Title]-FormType[animals]-AnimalType[Cattle]-Mode[Single]-[AnimalID]-
+
+                        HeadMessage = $"{AnimalType} Picture";
+
+                        string url = $"api/media/farms/{FarmId}/animals/{AnimalType}/single/{AnimalID}";
+
+                        Removal.AvailablImages = await Http.GetFromJsonAsync<List<string>>(url);
+
+                    }
+                }
+
+            }
+        }
+    }
+}

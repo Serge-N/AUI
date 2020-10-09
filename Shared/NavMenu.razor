@@ -1,0 +1,98 @@
+﻿<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">Agrixem</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" @onclick="ShowProduction">
+                <span  aria-hidden="true"></span> <b>Production</b>
+            </NavLink>
+        </li>
+        <li class="nav-item px-3 @productionState">
+            <NavLink class="nav-link" href="cattle">
+                <span class="oi oi-browser" aria-hidden="true"></span> Cattle
+            </NavLink>
+        </li>
+        <li class="nav-item px-3 @productionState">
+            <NavLink class="nav-link" href="goats">
+                <span class="oi oi-bar-chart" aria-hidden="true"></span> Goats
+            </NavLink>
+        </li>
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" @onclick="ShowManagement">
+                <span  aria-hidden="true"></span> <b>Management</b>
+            </NavLink>
+        </li>
+        
+        <li class="nav-item px-3 @managementState ">
+            <NavLink class="nav-link" href="location">
+                <span class="oi oi-location" aria-hidden="true"></span> Location
+            </NavLink>
+        </li>
+
+      
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" @onclick="ShowAdmin">
+                <span  aria-hidden="true"></span> <b>Adminstration</b>
+            </NavLink>
+        </li>
+        <li class="nav-item px-3 @adminstartionState">
+            <NavLink class="nav-link" href="people">
+                <span class="oi oi-people" aria-hidden="true"></span> Employees
+            </NavLink>
+        </li>
+        
+    </ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    private string productionState = "d-none";
+    private string managementState = "d-none";
+    private string adminstartionState = "d-none";
+    int p = 0;
+    int m= 0;
+    int a = 0;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+    private void ShowProduction()
+    {
+        if (p % 2 == 0)
+            productionState = "d-block";
+        else
+            productionState = "d-none";
+        p++;
+    }
+    private void ShowManagement()
+    {
+        if (m % 2 == 0)
+            managementState = "d-block";
+        else
+            managementState = "d-none";
+        m++;
+    }
+    private void ShowAdmin()
+    {
+        if (a % 2 == 0)
+            adminstartionState = "d-block";
+        else
+            adminstartionState = "d-none";
+        a++;
+    }
+}

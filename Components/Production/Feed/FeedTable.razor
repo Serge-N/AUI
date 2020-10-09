@@ -1,0 +1,59 @@
+﻿@inject HttpClient Http
+@using System.Net.Http
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@if (foods == null)
+{
+    <p><em>Loading...feed data for @Animal</em></p>
+}
+else
+{
+    <div class="table-responsive-sm">
+        <table class="table table-striped table-hover">
+            <caption>List of all Food for @Animal</caption>
+            <thead class="thead-dark">
+                <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Days</th>
+                    <th>Food</th>
+                    <th>Cost (ZMW)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var feed in foods)
+                {
+                    var Days = feed.StopDate - feed.StartDate;
+                    <tr>
+                        <td>@feed.StartDate.ToLongDateString()</td>
+                        <td>@feed.StopDate.ToLongDateString()</td>
+                        <td>@Days.TotalDays</td>
+                        <td>@feed.FeedType</td>
+                        <td>@feed.Cost</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>}
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    bool FarmStatus;
+    List<AUI.Shared.Classes.Production.Cows.Pasture> foods;
+
+    protected override async Task OnInitializedAsync()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                foods = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Pasture>>($"/api/Pastures/{FarmId}");
+            }
+        }
+    }
+}

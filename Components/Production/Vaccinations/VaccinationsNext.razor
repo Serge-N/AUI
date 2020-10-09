@@ -1,0 +1,156 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader;
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+
+<div class="row justify-content-center my-4 ml-4">
+
+    @if (CureDisease != null)
+    {
+        <div class="col-sm-6 col-md-6 col-lg-4">
+            <div style="border-radius: 0px; background: #ffffff; box-shadow: 5px 5px 10px #949494, -5px -5px 10px #ffffff; width: 300px;" class="p-4 m-3">
+                <b>CURE</b><br />
+                Disease: @CureDisease<br />
+                Date: @CureDate
+            </div>
+        </div>
+    }
+
+    @if (DoseVitamin != null)
+    {
+        <div class="col-sm-6 col-md-6 col-lg-4">
+            <div style="border-radius: 0px; background: #ffffff; box-shadow: 5px 5px 10px #949494, -5px -5px 10px #ffffff; width: 300px;" class="p-4 m-3">
+                <b>DOSE</b><br />
+                Vitamin: @DoseVitamin<br />
+                Date: @DoseDate
+            </div>
+        </div>
+    }
+
+    @if (DewormWorm != null)
+    {
+        <div class="col-sm-6 col-md-12 col-lg-4">
+            <div style="border-radius: 0px; background: #ffffff; box-shadow: 5px 5px 10px #949494, -5px -5px 10px #ffffff; width: 300px;" class="p-4 m-3">
+                <b>DEWORM</b><br />
+                Worm: @DewormWorm<br />
+                Date: @DewormDate
+            </div>
+        </div>
+    }
+
+</div>
+
+
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    bool FarmStatus;
+    List<AUI.Shared.Classes.Production.Cows.Vaccination> vaccinations = null;
+
+    private string CureDate = null;
+    private string CureDisease = null;
+    private string DoseDate = null;
+    private string DoseVitamin = null;
+    private string DewormDate = null;
+    private string DewormWorm = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                vaccinations = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Vaccination>>($"api/Vaccinations/{FarmId}");
+                AssignDates();
+            }
+        }
+    }
+
+    private void AssignDates()
+    {
+        //compare a list of dates
+        Dictionary<int, int> DatesCure = null;
+        Dictionary<int, int> DatesDose = null;
+        Dictionary<int, int> DatesDeworm = null;
+        DateTime today = DateTime.Now;
+
+
+        foreach (var treatment in vaccinations)
+        {
+            if (treatment.Purpose == "Cure")
+            {
+                var a = treatment.Date - today;
+                //deal with only upcoming events
+                if ((int)a.TotalDays > 0)
+                    DatesCure.Add(vaccinations.IndexOf(treatment), (int)a.TotalDays);
+
+            }
+            else if (treatment.Purpose == "Dose")
+            {
+                var b = treatment.Date - today;
+                //deal with only upcoming events
+                if ((int)b.TotalDays > 0)
+                    DatesDose.Add(vaccinations.IndexOf(treatment), (int)b.TotalDays);
+
+            }
+            else if (treatment.Purpose == "Deworm")
+            {
+                var c = treatment.Date - today;
+                if ((int)c.TotalDays > 0)
+                    DatesDeworm.Add(vaccinations.IndexOf(treatment), (int)c.TotalDays);
+            }
+        }
+
+        //cure
+        if (DatesCure != null)
+        {
+            int smallestNumberOfDays = DatesCure.Any() ? DatesCure.Min(e => e.Value) : 0;
+            var requiredIndex = DatesCure.FirstOrDefault(e => e.Value == smallestNumberOfDays).Key;
+            //ensure we are dealing with cure only
+            if (vaccinations[requiredIndex].Purpose == "Cure" && smallestNumberOfDays != 0)
+            {
+                CureDisease = vaccinations[requiredIndex].Detail;
+                var cDate = vaccinations[requiredIndex].Date;
+                CureDate = $"{cDate: dd - MMMM - yyyy}";
+            }
+
+        }
+
+        //dose
+        if (DatesDose != null)
+        {
+            int smallestNumberOfDays = DatesDose.Any() ? DatesDose.Min(e => e.Value) : 0;
+            var requiredIndex = DatesDose.FirstOrDefault(e => e.Value == smallestNumberOfDays).Key;
+            //ensure we are dealing with dose only
+            if (vaccinations[requiredIndex].Purpose == "Dose" && smallestNumberOfDays != 0)
+            {
+                DoseVitamin = vaccinations[requiredIndex].Detail;
+                var dDate = vaccinations[requiredIndex].Date;
+                DoseDate = $"{dDate: dd - MMMM - yyyy}";
+            }
+
+        }
+
+        //deworm
+        if (DatesDeworm != null)
+        {
+            int smallestNumberOfDays = DatesDeworm.Any() ? DatesDeworm.Min(e => e.Value) : 0;
+            var requiredIndex = DatesDeworm.FirstOrDefault(e => e.Value == smallestNumberOfDays).Key;
+            //ensure we are dealing with deworm only
+            if (vaccinations[requiredIndex].Purpose == "Deworm" && smallestNumberOfDays != 0)
+            {
+                DewormWorm = vaccinations[requiredIndex].Detail;
+                var dwDate = vaccinations[requiredIndex].Date;
+                DewormDate = $"{dwDate: dd - MMMM - yyyy}";
+            }
+
+
+        }
+    }
+}

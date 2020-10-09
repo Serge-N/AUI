@@ -1,0 +1,12 @@
+﻿@page "/cattle/all"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<h3>Cattle</h3>
+
+<div class="d-flex justify-content-between flex-row">
+    <AUI.Components.Production.Animals.AllAdd Animal="Cow" />
+    <AUI.Components.Production.Animals.AllPics Focus="Farms" FormType="Animals" Mode="Many" AnimalType="Cattle"/>
+</div>
+
+<AUI.Components.Production.Animals.AllTable Animal="Cattle" />

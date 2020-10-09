@@ -1,0 +1,89 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader;
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+
+<div class="card border-success">
+    <div class="card-body">
+        <p class="card-text">Active <span class="text-right">@active</span></p>
+        <p class="card-text">Young @Male <span class="text-right">@young</span></p>
+        <p class="card-text">@Female per @Single <span class="text-right">@fpm</span> </p>
+    </div>
+    <div class="card-footer">
+        <small class="text-muted"><b>@Male</b></small>
+    </div>
+</div>
+
+
+@code {
+    // Get the animal Type for better Rendering
+    [Parameter]
+    public string Animal { get; set; }
+    //The Titles and headers
+    string Male { get; set; }
+    string Single { get; set; }
+    string Female { get; set; }
+    bool FarmStatus;
+    //The three variables
+    int active;
+    int young;
+    int fpm;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Animal.Equals("Cattle"))
+        {
+            Male = "Bulls";
+            Female = "Cows";
+            Single = "Bull";
+        }
+        else if (Animal.Equals("Pigs"))
+        {
+            Male = "Boars";
+            Single = "Boar";
+            Female = "Sows";
+        }
+        else if (Animal.Equals("Goats"))
+        {
+            Male = "Bucks";
+            Single = "Buck";
+            Female = "Does";
+        }
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            active = 0;
+            fpm = 0;
+            young = 0;
+
+            if (Animal == "Cattle")
+            {
+                var cattle = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Cattle>>($"api/Cattle/farm/{FarmId}");
+
+                //active
+
+                active = cattle.FindAll(e => e.Sex=="Bull" && e.Status != "Sold").Count;
+
+                //fpm
+                var f = cattle.FindAll(e => e.Sex == "Cow" && e.Status != "Sold").Count;
+                var m = cattle.FindAll(e => e.Sex == "Bull" && e.Status != "Sold").Count;
+
+                if (m != 0) fpm = f / m;
+                var today = DateTime.Now;
+
+                //young
+                /*
+                if(cattle.Any(l => l.Growth != null))
+                young = cattle.FindAll(e => e.Sex == "Bull").Where( e => (int)(today.Year - e.Growth.DateOfBirth.Value.Year) <= 2 ).Count();
+                */
+            }
+        }
+    }
+
+}

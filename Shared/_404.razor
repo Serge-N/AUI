@@ -1,0 +1,18 @@
+﻿@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@using System.IO;
+
+<div class="w-100 text-center">
+    <h1 class="pt-4" style="font-size: 10em; font-weight: bolder; color: cornflowerblue;">404</h1>
+    <h1>It seems the page has run away...</h1>
+    <img src="https://i.pinimg.com/originals/ba/7b/49/ba7b499f56dc4258c0629ccf4bb7d911.gif" alt="Running cow" class="mx-2 w-50" />
+    <div><button class="btn btn-outline-primary mb-2" @onclick="Home">Home</button></div>
+</div>
+
+@code {
+    private void Home(MouseEventArgs args)
+    {
+        Navigation.NavigateTo("/");
+    }
+    
+}

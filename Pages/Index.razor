@@ -1,0 +1,19 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<AUI.Components.Functional.Pictures Focus="Farms" FormType="Farm" Mode="0" AnimalType="0" AnimalID="0" />
+
+<div class="d-flex justify-content-between flex-row">
+    <AUI.Components.Production.Animals.AllPics Focus="Farms" FormType="Farm" Mode="0" AnimalType="0" />
+    <AUI.Pages.Home.Farm />
+</div>
+
+
+<div class="row justify-content-center mt-2">
+    <AUI.Pages.Home.People />
+    <AUI.Pages.Home.Livestock />
+    <AUI.Pages.Home.Location />
+</div>
+
+

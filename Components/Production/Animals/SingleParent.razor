@@ -1,0 +1,168 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader;
+@using AUI.Shared.Classes.Production
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+
+<div class="btn-toolbar mb-1" role="toolbar">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#EditParents">± Parents</button>
+    </div>
+</div>
+
+<!-- Modal Edit Parents-->
+<div class="modal fade" id="EditParents" tabindex="-1" role="dialog" aria-labelledby="Save Parents Animal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="AddAnimalTitle">Edit Parents for  @Animal</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            @if (Parents != null)
+            {
+                <EditForm Model="@Parents" OnValidSubmit="@EditAnimal">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+                        @if (Bulls != null)
+                        {
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleFather">Father Tag (@maleName)</label>
+                                <div class="col-sm-8">
+                                    <select id="CatteFather" Class="form-control" @bind="@Parents.FatherID">
+                                        <option selected disabled value="">Bulls</option>
+                                        @foreach (var bulls in Bulls)
+                                        {
+                                            <option value="@bulls.ID">@bulls.TagID</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Cows != null)
+                        {
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleMother">Mother Tag (@femaleName)</label>
+                                <div class="col-sm-8">
+                                    <select id="CatteMother" Class="form-control" @bind="@Parents.MotherID">
+                                        <option selected disabled value="">Cows</option>
+                                        @foreach (var cow in Cows)
+                                        {
+                                            <option value="@cow.ID">@cow.TagID</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                    <div class="modal-footer">
+                        @if (Message != null)
+                        {
+                            <span><b>@Message</b></span>
+                        }
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </EditForm>
+
+            }
+            </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    [Parameter]
+    public long ID { get; set; }
+
+    AUI.Shared.Classes.Production.Cows.Pedigree Parents = null;
+    AUI.Shared.Classes.Production.Cows.Cattle Cattle;
+    List<AUI.Shared.Classes.Production.Cows.Cattle> Bulls = null;
+    List<AUI.Shared.Classes.Production.Cows.Cattle> Cows = null;
+
+    bool FarmStatus;
+    string Message;
+    string maleName;
+    string femaleName;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+        var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+
+        if (Animal == "Cattle")
+        {
+            var cattles = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Cattle>>($"api/Cattle/farm/{FarmId}");
+
+            Cattle = cattles.FirstOrDefault(e => e.ID == ID);
+
+            //account for individual records because some cattle might not have parents at the moment
+            var parents = await Http.GetAsync($"api/Pedigrees/{Cattle.ID}");
+            if (parents.IsSuccessStatusCode)
+            {
+                Parents = parents.Content.ReadFromJsonAsync<AUI.Shared.Classes.Production.Cows.Pedigree>().Result;
+            }
+            else
+            {
+                Parents = new Shared.Classes.Production.Cows.Pedigree();
+            }
+            //cow cannot give birth to itself
+            cattles.Remove(Cattle);
+
+            Bulls = cattles.FindAll(e => e.Sex == "Bull").ToList();
+
+            Cows = cattles.FindAll(e => e.Sex == "Cow").ToList();
+
+            if (Bulls != null && Parents.FatherID != null)
+                maleName = Bulls.FirstOrDefault(e => e.ID == 2).Name;
+
+            if (Cows != null && Parents.MotherID != null)
+                femaleName = Cows.FirstOrDefault(e => e.ID == Parents.MotherID).Name;
+        }
+    }
+
+    async Task EditAnimal()
+    {
+        Message = null;
+        if (FarmStatus)
+        {
+            if (Animal == "Cattle")
+            {
+                if(Parents == null)
+                {
+                    //post
+                    Parents.CattleID = 0;
+                    Parents.CattleFK = Cattle.ID;
+                    var response = await Http.PostAsJsonAsync<AUI.Shared.Classes.Production.Cows.Pedigree>($"api/Pedigrees", Parents);
+                    //analyse result
+                    if (response.IsSuccessStatusCode)
+                        Message = $"Parents for Tag {Cattle.TagID} have been added";
+                    else
+                        Message = $"Failed to add Parents for Tag {Cattle.TagID}";
+                } else
+                {
+                    //put
+                    var response = await Http.PutAsJsonAsync<AUI.Shared.Classes.Production.Cows.Pedigree>($"api/Pedigrees/{Parents.CattleID}", Parents);
+                    //analyse result
+                    if (response.IsSuccessStatusCode)
+                        Message = $"Parents for Tag {Cattle.TagID} have been Updated";
+                    else
+                        Message = $"Failed to update Parents for Tag {Cattle.TagID}";
+                }
+
+            }
+        }
+    }
+
+}

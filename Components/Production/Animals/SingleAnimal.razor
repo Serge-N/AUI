@@ -1,0 +1,237 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader;
+@using AUI.Shared.Classes.Production
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+
+<div class="btn-toolbar mb-1" role="toolbar">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#EditAnimal">± @Animal</button>
+        <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#ViewAnimal">👁 @Animal</button>
+        <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#RemoveAnimal">- @Animal</button>
+    </div>
+</div>
+
+<!-- Modal Edit Animal-->
+<div class="modal fade" id="EditAnimal" tabindex="-1" role="dialog" aria-labelledby="Save Animal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="AddAnimalTitle">Edit @Animal</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @if (Animal == "Cattle" && cattle != null)
+            {
+                <EditForm Model="@cattle" OnValidSubmit="@EditAnimal">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleTag">Tag No.</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="CattleTag" Class="form-control" @bind-Value="@cattle.TagID" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => cattle.TagID)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleName">Name</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="CattleName" @bind-Value="@cattle.Name" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => cattle.Name)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleSex">Sex</label>
+                            <div class="col-sm-8">
+                                <InputSelect id="CatteSex" Class="form-control" @bind-Value="@cattle.Sex">
+                                    <option selected disabled value="">Gender</option>
+                                    @foreach (var sex in GenderCattle)
+                                        {
+                                        <option value="@sex">@sex</option>
+                                        }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleColor">Colour</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="CattleColor" @bind-Value="@cattle.Color" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => cattle.Color)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleBreed">Breed</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="CattleBreed" @bind-Value="@cattle.Breed" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => cattle.Breed)" />
+                                </small>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleStatus">Status</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="CattleStatus" @bind-Value="@cattle.Status" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => cattle.Status)" />
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        @if (Message != null)
+                        {
+                            <span><b>@Message</b></span>
+                        }
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </EditForm>
+            }
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal View Animal-->
+<div class="modal fade" id="ViewAnimal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered  modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="RemoveAnimalTitle">Remove Picture for @Animal
+                @if (Animal == "Cattle" && cattle != null) {@cattle.TagID}
+                </h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <AUI.Components.Functional.Pictures Focus="Farms" FormType="Animals" Mode="Single" AnimalType="@Animal" AnimalID=@ID />
+            </div>
+            <div class="modal-footer">
+                <AUI.Components.Production.Animals.AllPics Focus="Farms" FormType="Animals" Mode="Single" AnimalType="@Animal" AnimalID=@ID />
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal Remove Animal-->
+<div class="modal fade" id="RemoveAnimal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="EditAnimalTitle">Remove @Animal</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @if (Animal == "Cattle" && cattle != null)
+            {
+                <EditForm Model="@cattle" OnValidSubmit="@RemoveAnimal">
+                    <div class="modal-body">
+                        <div class="form-group row pt-2">
+                            <label class="col-sm-4 col-form-label" for="CattleTag">TagID (@cattle.TagID) </label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="FN" Class="form-control" @bind-Value="@TagID" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        @if (Message != null)
+                        {
+                            <span><b>@Message</b></span>
+                        }
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </div>
+                </EditForm>
+            }
+            </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    [Parameter]
+    public long ID { get; set; }
+    long TagID;
+    AUI.Shared.Classes.Production.Cows.Cattle cattle = null;
+
+    bool FarmStatus;
+    string Message;
+
+    List<string> GenderCattle { get; } = new List<string>() { "Castrated", "Bull", "Cow" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+        if (Animal == "Cattle")
+            cattle = await Http.GetFromJsonAsync<AUI.Shared.Classes.Production.Cows.Cattle>($"api/Cattle/{ID}");
+    }
+
+    private async Task EditAnimal()
+    {
+        Message = null;
+        if (FarmStatus)
+            if (Animal == "Cattle")
+            {
+                //send
+                var response = await Http.PutAsJsonAsync<AUI.Shared.Classes.Production.Cows.Cattle>($"api/cattle/{cattle.ID}", cattle);
+                //analyse result
+                if (response.IsSuccessStatusCode)
+                
+                    Message = $"Cattle Tagged {cattle.TagID} has been Updated";
+                
+                else
+                    Message = $"Failed to update Cattle Tagged {cattle.TagID}";
+            
+             }
+    }
+
+    private async Task RemoveAnimal()
+    {
+        Message = null;
+        if (Animal == "Cattle" && cattle.TagID == TagID)
+        {
+
+            //TODO:delete all records related to this cow
+
+            //send
+            var response = await Http.DeleteAsync($"api/Cattle/{ID}");
+
+            //analyse result
+            if (response.IsSuccessStatusCode)
+            {
+                Message = $"{cattle.TagID} has been deleted";
+            }
+            else
+                Message = $"Failed to delete {cattle.TagID}";
+        } else
+        {
+            Message = $"{TagID} is not the same as {cattle.TagID}";
+        }
+    }
+}
+
+

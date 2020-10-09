@@ -1,0 +1,69 @@
+﻿
+@inject HttpClient Http
+
+@if (forecasts == null)
+{
+    <p><em>Loading...data for @Animal</em></p>
+}
+else
+{
+    <div class="table-responsive-sm">
+        <table class="table table-striped table-hover">
+            <caption>List of all @Animal sales</caption>
+            <thead class="thead-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>TagID</th>
+                    <th>Weight (Kgs)</th>
+                    <th>Price (ZMW)</th>
+                    <th>Form</th>
+                    <th>Mode</th>
+                    <th>Buyer</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var forecast in forecasts)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between flex-row">
+        <div> <b>Total : XXXXX @Animal </b></div>
+        <div><b>Total (ZMW) : XXXXX</b></div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    [Parameter]
+    public int? Year { get; set; }
+    [Parameter]
+    public int? Month { get; set; }
+
+    private WeatherForecast[] forecasts;
+    protected override async Task OnInitializedAsync()
+    {
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("");
+    }
+
+    public class WeatherForecast
+    {
+        public DateTime Date { get; set; }
+
+        public int TemperatureC { get; set; }
+
+        public string Summary { get; set; }
+
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}

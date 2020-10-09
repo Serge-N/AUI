@@ -1,0 +1,36 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using System.Security.Claims
+
+@inject NavigationManager Navigation
+@inject IAuthService AuthService
+@using AUI.Services
+
+<AuthorizeView>
+    <Authorized>
+        <FarmSelector UserRole=@context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value
+                      GivenID=@context.User.Claims.FirstOrDefault(c => c.Type == "FarmID")?.Value/>
+
+        <div class="nav-link btn btn-link" @onclick="Profile">
+            @if (context.User.Claims.FirstOrDefault(c => c.Type == "MiddleName")?.Value != null)
+            {
+                <span>Hi, @context.User.Claims.FirstOrDefault(c => c.Type == "MiddleName")?.Value </span>
+            }
+            else
+            {
+                <span>Hello, @context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value </span>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <a href="/login">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{
+    private void Profile(MouseEventArgs args)
+    {
+        Navigation.NavigateTo("/profile");
+    }
+
+}

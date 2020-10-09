@@ -1,0 +1,331 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader;
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+<div class="btn-toolbar mb-4" role="toolbar">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddPasture" @onclick="PostLock">+</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#EditPasture" @onclick="GenerateList">±</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#RemovePasture" @onclick="GenerateList">-</button>
+    </div>
+</div>
+
+
+<!--Save Cow-->
+<div class="modal fade" id="AddPasture" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="AddAnimalTitle">Add Food for @Animal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <EditForm Model="@Pasture" OnValidSubmit="@AddPasture">
+                <div class="modal-body">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="StartDate">Start Date</label>
+                        <div class="col-sm-8">
+                            <InputDate Id="StartDate" Class="form-control" @bind-Value="@Pasture.StartDate" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Pasture.StartDate)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="StartDate">Stop Date</label>
+                        <div class="col-sm-8">
+                            <InputDate Id="StartDate" Class="form-control" @bind-Value="@Pasture.StopDate" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Pasture.StopDate)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="VaccUnits">Pasture Type</label>
+                        <div class="col-sm-8">
+                            <InputSelect id="VaccUnits" Class="form-control" @bind-Value="@Pasture.FeedType">
+                                <option selected disabled value="">Pasture</option>
+                                @foreach (var food in foods)
+                                {
+                                    <option value="@food">@food</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="PastureCost">Cost (ZMW) </label>
+                        <div class="col-sm-8">
+                            <InputNumber Id="PastureCost" Class="form-control" @bind-Value="@Pasture.Cost" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Pasture.Cost)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-12 col-form-label text-center" for="StartDate">@((Pasture.StopDate-Pasture.StartDate).TotalDays) Days on @Pasture.FeedType</label>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    @if (Message != null)
+                    {
+                        <span><b>@Message</b></span>
+                    }
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Cow-->
+<div class="modal fade" id="EditPasture" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="EditAnimalTitle">Edit Food for @Animal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <EditForm Model="@Pasture" OnValidSubmit="@EditPasture">
+                <div class="modal-body">
+                    <DataAnnotationsValidator />
+
+                     <div class="form-group row">
+                        <div class="col-sm-12">
+                            <InputSelect id="VaccSelect" Class="form-control" @bind-Value="@Index" @onclick="BindObject">
+                                <option selected disabled value="">Food</option>
+                                @foreach (var food in Pastures)
+                                {
+                                    <option value="@Pastures.IndexOf(food).ToString()">@food.StartDate.ToLongDateString() (@food.FeedType)</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="StartDate">Start Date</label>
+                        <div class="col-sm-8">
+                            <InputDate Id="StartDate" Class="form-control" @bind-Value="@Pasture.StartDate" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Pasture.StartDate)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="StartDate">Stop Date</label>
+                        <div class="col-sm-8">
+                            <InputDate Id="StartDate" Class="form-control" @bind-Value="@Pasture.StopDate" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Pasture.StopDate)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="VaccUnits">Pasture Type</label>
+                        <div class="col-sm-8">
+                            <InputSelect id="VaccUnits" Class="form-control" @bind-Value="@Pasture.FeedType">
+                                <option selected disabled value="">Pasture</option>
+                                @foreach (var food in foods)
+                                {
+                                    <option value="@food">@food</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="PastureCost">Cost (ZMW) </label>
+                        <div class="col-sm-8">
+                            <InputNumber Id="PastureCost" Class="form-control" @bind-Value="@Pasture.Cost" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Pasture.Cost)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-12 col-form-label text-center" for="StartDate">@((Pasture.StopDate-Pasture.StartDate).TotalDays) Days on @Pasture.FeedType</label>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    @if (Message != null)
+                    {
+                        <span><b>@Message</b></span>
+                    }
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-info">Save</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Remove Cow-->
+<div class="modal fade" id="RemovePasture" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RemoveAnimalTitle">Remove Food for @Animal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <EditForm Model="@Pasture" OnValidSubmit="@RemovePasture">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <InputSelect id="VaccSelect" Class="form-control" @bind-Value="@Index" @onclick="BindObject">
+                                <option selected disabled value="">Food</option>
+                                @foreach (var food in Pastures)
+                                {
+                                    <option value="@Pastures.IndexOf(food).ToString()">@food.StartDate.ToLongDateString() (@food.FeedType)</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @if (Message != null)
+                    {
+                        <span><b>@Message</b></span>
+                    }
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Remove</button>
+                </div>
+                </EditForm>
+</div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    private string Message { get; set; }
+    private int PostProtector;
+    bool FarmStatus;
+    private string Index = null;
+    private AUI.Shared.Classes.Production.Cows.Pasture Pasture = new Shared.Classes.Production.Cows.Pasture();
+    private List<AUI.Shared.Classes.Production.Cows.Pasture> Pastures = new List<AUI.Shared.Classes.Production.Cows.Pasture>();
+    private List<string> foods { get; } = new List<string>() { "Grass", "Hay", "Molasses", "Other"};
+
+    private async Task AddPasture()
+    {
+        Message = null;
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                //Configure
+                int ID;
+                int.TryParse(FarmId, out ID);
+                Pasture.FarmID = ID;
+                Pasture.ID = 0;
+
+                if (PostProtector == 1)
+                {
+                    //send
+                    var response = await Http.PostAsJsonAsync<AUI.Shared.Classes.Production.Cows.Pasture>("/api/Pastures", Pasture);
+                    //lock posting
+                    PostProtector = 2;
+
+                    //analyse result
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Message = $"{Pasture.FeedType} has been added";
+                    }
+                    else
+                        Message = $"Failed to add {Pasture.FeedType}";
+
+                }
+            }
+        }
+    }
+
+    private async Task EditPasture()
+    {
+        Message = null;
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                Pasture.FarmID = int.Parse(FarmId);
+                //send
+                var response = await Http.PutAsJsonAsync<AUI.Shared.Classes.Production.Cows.Pasture>($"/api/Pastures/{Pasture.ID}", Pasture);
+
+                //analyse result
+                if (response.IsSuccessStatusCode)
+                {
+                    Message = $"{Pasture.FeedType} has been updated";
+                }
+                else
+                    Message = $"Failed to update {Pasture.FeedType}";
+            }
+        }
+    }
+
+    private async Task GenerateList()
+    {
+        Message = null;
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                Pastures = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Pasture>>($"/api/Pastures/{FarmId}");
+            }
+        }
+    }
+
+    private async Task RemovePasture()
+    {
+        Message = null;
+        if (Animal == "Cattle")
+        {
+            //send
+            var response = await Http.DeleteAsync($"/api/Pastures/{Pasture.ID}");
+
+            //analyse result
+            if (response.IsSuccessStatusCode)
+            {
+                Message = $"{Pasture.FeedType} has been deleted";
+            }
+            else
+                Message = $"Failed to delete {Pasture.FeedType}";
+        }
+    }
+
+    private void BindObject()
+    {
+        if (Index != null)
+            Pasture = Pastures[int.Parse(Index)];
+    }
+
+    private void PostLock()
+    {
+        PostProtector = 1;
+    }
+}

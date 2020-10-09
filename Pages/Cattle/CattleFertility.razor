@@ -1,0 +1,17 @@
+﻿@page "/cattle/fertility"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<h3 class="mb-4">Cattle Fertility</h3>
+
+<div class="card-deck">
+    <AUI.Components.Production.Fertility.MaleCard Animal="Cattle" />
+    <AUI.Components.Production.Fertility.FemaleCard Animal="Cattle" />
+</div>
+
+<div class="mt-4"></div>
+
+<div class="card-deck">
+    <AUI.Components.Production.Fertility.OffspringCard Animal="Cattle" />
+    <AUI.Components.Production.Fertility.OthersCard Animal="Cattle" />
+</div>

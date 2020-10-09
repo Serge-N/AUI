@@ -1,0 +1,75 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader
+@using AUI.Shared.Classes.Production
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+@if (Cattles == null)
+{
+    <p class="py-5 pl-5"><em>Loading...data for @Animal</em></p>
+}
+else
+{
+    <div class="table-responsive-sm">
+        <table class="table table-striped table-hover">
+            <caption>List of all @Animal</caption>
+            @if (Animal == "Cattle")
+            {
+            <thead class="thead-dark">
+                <tr>
+                    <th>Tag No</th>
+                    <th>Name</th>
+                    <th>Color</th>
+                    <th>Breed</th>
+                    <th>Sex</th>
+                    <th>Value (ZMW)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var Cattle in Cattles)
+                {
+                    Address= $"cattle/{Cattle.ID}";
+
+                
+                    <tr>
+                        <td><NavLink class="nav-link" href=@Address>@Cattle.TagID </NavLink></td>
+                        <td>@Cattle.Name</td>
+                        <td>@Cattle.Color</td>
+                        <td>@Cattle.Breed</td>
+                        <td>@Cattle.Sex</td>
+                        <td>@Cattle.CurrentValue</td>
+                        <td>@Cattle.Status</td>
+                    </tr>
+                   
+                 }
+</tbody>
+            }
+        </table>
+    </div>}
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    bool FarmStatus;
+    string Address;
+
+    List<AUI.Shared.Classes.Production.Cows.Cattle> Cattles = null;
+    protected override async Task OnInitializedAsync()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                Cattles = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Cattle>>($"api/Cattle/farm/{FarmId}");
+            }
+        }
+    }
+
+
+}

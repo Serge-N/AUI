@@ -1,0 +1,15 @@
+﻿@inject NavigationManager Navigation
+
+    <div class="w-100 text-center">
+        <h1 class="pt-4" style="font-size: 10em; font-weight: bolder; color: darkred;">403</h1>
+        <h3>Forbidden! You definately need to accure more power...</h3>
+        <img src="https://www.emoji.com/wp-content/uploads/filebase/3d%20icons/emoji-3d%20icons-glossy-3d-icons-stop-sign-72dpi-forPersonalUseOnly.gif" alt="stop" class="mx-2 w-25" />
+        <div><button class="btn btn-outline-danger my-3" @onclick="Home">Home</button></div>
+    </div>
+
+@code {
+    private void Home(MouseEventArgs args)
+    {
+        Navigation.NavigateTo("/");
+    }
+}

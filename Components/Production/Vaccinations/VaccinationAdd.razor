@@ -1,0 +1,517 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader
+@using AUI.Shared.Classes.Production
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+<div class="btn-toolbar mb-4" role="toolbar">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#AddVac" @onclick="Overpost">+</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#EditVac" @onclick="Generate">±</button>
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#RemoveVac" @onclick="Generate">-</button>
+    </div>
+</div>
+
+<!-- Modal Save Vaccine-->
+<div class="modal fade" id="AddVac" tabindex="-1" role="dialog" aria-labelledby="Save Animal Vaccine" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="AddVac">Add Vaccination for @Animal</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <EditForm Model="@Vaccination" OnValidSubmit="@AddVacc">
+                <div class="modal-body">
+                    <DataAnnotationsValidator />
+
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="VaccPurpose">Purpose</label>
+                        <div class="col-sm-8">
+                            <InputSelect id="VaccPurpose" Class="form-control" @bind-Value="@Vaccination.Purpose">
+                                <option selected disabled value="">Reason</option>
+                                @foreach (var job in Intentions)
+                                {
+                                    <option value="@job">@job</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+
+                    @if (Vaccination.Purpose == "Cure")
+                    {
+                        //disease
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="VaccDrug">Disease</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="VaccDrug" @bind-Value="@Vaccination.Detail" required />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Vaccination.Detail)" />
+                                </small>
+                            </div>
+                        </div>
+                    }
+                    else if (Vaccination.Purpose == "Deworm")
+                    {
+                        //worm
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Vaccworm">Worm</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="Vaccworm" @bind-Value="@Vaccination.Detail" required />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Vaccination.Detail)" />
+                                </small>
+                            </div>
+                        </div>
+                    }
+                    else if (Vaccination.Purpose == "Dose")
+                    {
+                        //vitamin
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Vaccvit">Vitamin</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="Vaccvit" @bind-Value="@Vaccination.Detail" required />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Vaccination.Detail)" />
+                                </small>
+                            </div>
+                        </div>
+                    }
+                    else if (Vaccination.Purpose == "Spray")
+                    {
+                        //pestite
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Vaccparasite">Parasite</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="Vaccparasite" @bind-Value="@Vaccination.Detail" required />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Vaccination.Detail)" />
+                                </small>
+                            </div>
+                        </div>
+                    }
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="VaccDate">Date</label>
+                        <div class="col-sm-8">
+                            <InputDate Id="VaccDate" Class="form-control" @bind-Value="@Vaccination.Date" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Vaccination.Date)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="VaccDrug">Drug</label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control" id="VaccDrug" @bind-Value="@Vaccination.DrugName" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Vaccination.DrugName)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="VaccRemarks">Remarks</label>
+                        <div class="col-sm-8">
+                            <InputTextArea Class="form-control" id="VaccRemarks" @bind-Value="@Vaccination.Remark" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Vaccination.Remark)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="VaccQuantity">Quantity </label>
+                        <div class="col-sm-8">
+                            <InputNumber Id="VaccQuantity" Class="form-control" @bind-Value="@Vaccination.DrugQuality" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Vaccination.DrugQuality)" />
+                            </small>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="VaccUnits">Units</label>
+                        <div class="col-sm-8">
+                            <InputSelect id="VaccUnits" Class="form-control" @bind-Value="@Vaccination.DrugUnits">
+                                <option selected disabled value="">Drug Units</option>
+                                @foreach (var volume in quantity)
+                                {
+                                    <option value="@volume">@volume</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="VaccDone">Done</label>
+                        <div class="col-sm-8">
+                            <InputSelect id="VaccDone" Class="form-control" @bind-Value="@Vaccination.Done">
+                                <option selected disabled value="">Done</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="Not Yet">Not Yet</option>
+
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    @if (Message != null)
+                    {
+                        <span><b>@Message</b></span>
+                    }
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Vaccine-->
+<div class="modal fade" id="EditVac" tabindex="-1" role="dialog" aria-labelledby="Edit Vaccine" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="EditVac">Edit Vaccination for @Animal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <EditForm Model="@Vaccination" OnValidSubmit="@EditVacc">
+                <div class="modal-body">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <InputSelect id="VaccSelect" Class="form-control" @bind-Value="@Index" @onclick="VaccineX">
+                                <option selected disabled value="">Vaccination</option>
+                                @foreach (var vaccine in Vaccinations)
+                                {
+                                    <option value="@Vaccinations.IndexOf(vaccine).ToString()">@vaccine.Date.ToLongDateString() - @vaccine.Purpose</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="Vacc_Purpose">Purpose</label>
+                        <div class="col-sm-8">
+                            <InputSelect id="Vacc_Purpose" Class="form-control" @bind-Value="@Vaccination.Purpose">
+                                <option selected disabled value="">Reason</option>
+                                @foreach (var job in Intentions)
+                                {
+                                    <option value="@job">@job</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+
+                    @if (Vaccination.Purpose == "Cure")
+                    {
+                        //disease
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Vacc_Drug">Disease</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="Vacc_Drug" @bind-Value="@Vaccination.Detail" required />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Vaccination.Detail)" />
+                                </small>
+                            </div>
+                        </div>
+                    }
+                    else if (Vaccination.Purpose == "Deworm")
+                    {
+                        //worm
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Vacc_worm">Worm</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="Vacc_worm" @bind-Value="@Vaccination.Detail" required />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Vaccination.Detail)" />
+                                </small>
+                            </div>
+                        </div>
+                    }
+                    else if (Vaccination.Purpose == "Dose")
+                    {
+                        //vitamin
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Vacc_vit">Vitamin</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="Vacc_vit" @bind-Value="@Vaccination.Detail" required />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Vaccination.Detail)" />
+                                </small>
+                            </div>
+                        </div>
+                    }
+                    else if (Vaccination.Purpose == "Spray")
+                    {
+                        //pestite
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Vacc_parasite">Parasite</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="Vacc_parasite" @bind-Value="@Vaccination.Detail" required />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Vaccination.Detail)" />
+                                </small>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="Vacc_Date">Date</label>
+                        <div class="col-sm-8">
+                            <InputDate Id="Vacc_Date" Class="form-control" @bind-Value="@Vaccination.Date" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Vaccination.Date)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="Vacc_Drug">Drug</label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control" id="Vacc_Drug" @bind-Value="@Vaccination.DrugName" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Vaccination.DrugName)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="Vacc_Remarks">Remarks</label>
+                        <div class="col-sm-8">
+                            <InputTextArea Class="form-control" id="Vacc_Remarks" @bind-Value="@Vaccination.Remark" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Vaccination.Remark)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="Vacc_Quantity">Quantity </label>
+                        <div class="col-sm-8">
+                            <InputNumber Id="Vacc_Quantity" Class="form-control" @bind-Value="@Vaccination.DrugQuality" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Vaccination.DrugQuality)" />
+                            </small>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="Vacc_Units">Units</label>
+                        <div class="col-sm-8">
+                            <InputSelect id="Vacc_Units" Class="form-control" @bind-Value="@Vaccination.DrugUnits">
+                                <option selected disabled value="">Drug Units</option>
+                                @foreach (var volume in quantity)
+                                {
+                                    <option value="@volume">@volume</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="Vacc_Done">Done</label>
+                        <div class="col-sm-8">
+                            <InputSelect id="Vacc_Done" Class="form-control" @bind-Value="@Vaccination.Done">
+                                <option selected disabled value="">Done</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="Not Yet">Not Yet</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    @if (Message != null)
+                    {
+                        <span><b>@Message</b></span>
+                    }
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-info">Save</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Remove Vaccination-->
+<div class="modal fade" id="RemoveVac" tabindex="-1" role="dialog" aria-labelledby="Remove Vacinations" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="RemoveVac">Remove Vaccination for @Animal</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <EditForm Model="@Vaccination" OnValidSubmit="@RemoveVacc">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <InputSelect id="VaccSelect_" Class="form-control" @bind-Value="@Index" @onclick="VaccineX">
+                                <option selected disabled value="">Vaccination</option>
+                                @foreach (var vaccine in Vaccinations)
+                                {
+                                    <option value="@Vaccinations.IndexOf(vaccine).ToString()">@vaccine.Date.ToLongDateString() - @vaccine.Purpose</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @if (Message != null)
+                    {
+                        <span><b>@Message</b></span>
+                    }
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Remove</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    private string Message { get; set; }
+    private bool FarmStatus;
+    private int PostProtector;
+    private string Index = null;
+    private AUI.Shared.Classes.Production.Cows.Vaccination Vaccination = new AUI.Shared.Classes.Production.Cows.Vaccination();
+    private List<AUI.Shared.Classes.Production.Cows.Vaccination> Vaccinations = new List<Shared.Classes.Production.Cows.Vaccination>();
+
+
+    private List<string> Intentions { get; } = new List<string>() {
+        "Castrate", "Dehorn", "Deworm","Dose", "Spray","Cure"
+
+    };
+
+    private List<string> quantity { get; } = new List<string>() {
+        "l","mg","gm", "ml","mg/ml", "mg/kg","cubic cm", "cubic meter", "mg/tablets"
+
+    };
+
+    private void VaccineX()
+    {
+        if (Index != null)
+            Vaccination = Vaccinations[int.Parse(Index)];
+    }
+
+    private void Overpost()
+    {
+        PostProtector = 1;
+        Message = null;
+    }
+
+    private async Task Generate()
+    {
+        Message = null;
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                Vaccinations = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Vaccination>>($"api/Vaccinations/{FarmId}");
+            }
+        }
+    }
+
+    private async Task AddVacc()
+    {
+        Message = null;
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                //Configure
+                int ID;
+                int.TryParse(FarmId, out ID);
+                Vaccination.FarmID = ID;
+                Vaccination.ID = 0;
+
+                if (PostProtector == 1)
+                {
+                    //send
+                    var response = await Http.PostAsJsonAsync<AUI.Shared.Classes.Production.Cows.Vaccination>("/api/Vaccinations", Vaccination);
+                    //lock posting
+                    PostProtector = 2;
+
+                    //analyse result
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Message = $"{Vaccination.Purpose} has been added";
+                    }
+                    else
+                        Message = $"Failed to add {Vaccination.Purpose}";
+
+                }
+            }
+        }
+    }
+
+    private async Task EditVacc()
+    {
+        Message = null;
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                Vaccination.FarmID = int.Parse(FarmId);
+                //send
+                var response = await Http.PutAsJsonAsync<AUI.Shared.Classes.Production.Cows.Vaccination>($"/api/Vaccinations/{Vaccination.ID}", Vaccination);
+
+                //analyse result
+                if (response.IsSuccessStatusCode)
+                {
+                    Message = $"{Vaccination.Purpose} has been updated";
+                }
+                else
+                    Message = $"Failed to update {Vaccination.Purpose}";
+            }
+        }
+    }
+
+    private async Task RemoveVacc()
+    {
+        Message = null;
+        if (Animal == "Cattle")
+        {
+            //send delete request
+            var response = await Http.DeleteAsync($"/api/Vaccinations/{Vaccination.ID}");
+
+            //analyse result
+            if (response.IsSuccessStatusCode)
+            {
+                Message = $"{Vaccination.Purpose} has been deleted";
+            }
+            else
+                Message = $"Failed to delete {Vaccination.Purpose}";
+        }
+    }
+}

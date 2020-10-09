@@ -1,0 +1,91 @@
+﻿@using System.Diagnostics;
+@using AUI.Shared.Classes.General
+@using System.Net.Http
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-inline-flex"><b>@Animal</b></div>
+        <div class="d-inline-flex">
+            <NavLink class="nav-link" href=@Address>
+                <span class="oi oi-chevron-right" aria-hidden="true" style="font-size: 10px;"></span>
+            </NavLink>
+        </div>
+    </div>
+    <ul class="list-group list-group-flush">
+
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between flex-row">
+                Total:<span class="justify-content-end">@Total</span>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between flex-row">
+                @Male: <span class="justify-content-end">@MaleNumber</span>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between flex-row">
+                @Female:    <span class="justify-content-end">@FemaleNumber</span>
+            </div>
+        </li>
+
+    </ul>
+</div>
+@code {
+    // Get the animal Type for better Rendering
+    [Parameter]
+    public string Animal { get; set; }
+    private string Title { get; set; }
+    private string Male { get; set; }
+    private string Female { get; set; }
+    private string Address { get; set; }
+    private string Url { get; set; }
+    private int Total;
+    private int MaleNumber;
+    private int FemaleNumber;
+    //The Titles and headers
+    protected override async Task OnInitializedAsync()
+    {
+        if (Animal.Equals("Cattle"))
+        {
+
+            Male = "Bulls";
+            Female = "Cows";
+            Address = "cattle/all";
+
+        }
+        else if (Animal.Equals("Pigs"))
+        {
+            Male = "Boars";
+            Female = "Sows";
+            Address = "pigs/all";
+        }
+        else if (Animal.Equals("Goats"))
+        {
+            Male = "Bucks";
+            Female = "Does";
+            Address = "goats/all";
+        }
+
+        bool FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+        if (FarmStatus)
+        {
+            var farmId = await localStorage.GetItemAsync<string>("FarmID");
+            Url = $"api/{Animal}/farm/{farmId}";
+            if (Animal.Equals("Cattle"))
+            {
+                List<AUI.Shared.Classes.Production.Cows.Cattle> Animals = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Cattle>>(Url);
+                Total = Animals.Count();
+                FemaleNumber = Animals.FindAll(e => e.Sex == "Cow").Count;
+                MaleNumber = Animals.FindAll(e => e.Sex != "Cow").Count;
+            }
+        }
+    }
+}

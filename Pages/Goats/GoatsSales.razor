@@ -1,0 +1,41 @@
+﻿@page "/goats/sales"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<h3>Goat Sales</h3>
+
+<div class="form-row align-items-center mb-5 mt-5">
+    <div class="col-auto my-1">
+        <label class="mr-sm-2" for="inlineFormCustomSelect"><b>Year</b></label>
+        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+            <option selected>2020</option>
+            <option value="1">2015</option>
+            <option value="2">2016</option>
+            <option value="3">2017</option>
+            <option value="4">2018</option>
+            <option value="5">2019</option>
+            <option value="6">2020</option>
+        </select>
+    </div>
+
+    <div class="col-auto my-1">
+        <label class="mr-sm-2" for="inlineFormCustomSelect"><b>Month</b></label>
+        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+            <option selected>July</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">Decimber</option>
+        </select>
+    </div>
+</div>
+
+<AUI.Components.Production.Sales.SalesTable Animal="Goats" />

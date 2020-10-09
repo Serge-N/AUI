@@ -1,0 +1,9 @@
+﻿@page "/goats/feed"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<h3>Goats Feed</h3>
+
+<AUI.Components.Production.Feed.FeedAdd Animal="Goats" />
+
+<AUI.Components.Production.Feed.FeedTable Animal="Goats" />

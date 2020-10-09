@@ -1,0 +1,107 @@
+﻿@inject HttpClient Http
+@using System.Net.Http
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<div class="card">
+
+    <div class="card-header">
+        <div class="d-inline-flex"><b>Feed</b></div>
+        <div class="d-inline-flex">
+            <NavLink class="nav-link" href=@Address>
+                <span class="oi oi-chevron-right" aria-hidden="true" style="font-size: 10px;"></span>
+            </NavLink>
+        </div>
+    </div>
+
+    <ul class="list-group list-group-flush">
+
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between flex-row">
+                Starting : <span class="justify-content-end">@StartDate</span>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between flex-row">
+                Ending : <span class="justify-content-end">@StopDate</span>
+            </div>
+        </li>
+
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between flex-row">
+                Days Remaining : <span class="justify-content-end">@RemainingDays</span>
+            </div>
+        </li>
+    </ul>
+</div>
+
+
+@code {
+    // Get the animal Type for better Rendering
+    [Parameter]
+    public string Animal { get; set; }
+    private string Address { get; set; }
+    private string StartDate { get; set; }
+    private string StopDate { get; set; }
+    private int RemainingDays { get; set; }
+
+    bool FarmStatus;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Animal.Equals("Cattle"))
+            Address = "cattle/feed";
+
+        else if (Animal.Equals("Pigs"))
+            Address = "pigs/feed";
+
+        else if (Animal.Equals("Goats"))
+            Address = "goats/feed";
+
+
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cattle")
+            {
+                var foods = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.Production.Cows.Pasture>>($"/api/Pastures/{FarmId}");
+                //select todays date.
+                var today = DateTime.Now;
+                Dictionary<int, int> Dates = new Dictionary<int, int>();
+
+                foreach (var pasture in foods)
+                {
+                    var last = pasture.StopDate - today;
+                    var first = pasture.StartDate - today;
+                    //deal with events that have started but yet finished
+                    if ((int)last.TotalDays >= 0 && (int)first.TotalDays <= 0)
+                    {
+                        Dates.Add(foods.IndexOf(pasture), (int)(first.TotalDays));
+                    }
+
+                    if (Dates != null)
+                    {
+                        //closest date to today?
+                        int smallestNumberOfDays = Dates.Any() ? Dates.Min(e => e.Value) : 0;
+                        var requiredIndex = Dates.FirstOrDefault(e => e.Value == smallestNumberOfDays).Key;
+
+
+                        var strDate = foods[requiredIndex].StartDate;
+                        StartDate = $"{strDate: dd - MMMM - yyyy}";
+                        var stpDate = foods[requiredIndex].StopDate;
+                        StopDate = $"{stpDate: dd - MMMM - yyyy}";
+                        RemainingDays = (int)last.Days;
+                    }
+
+
+                }
+            }
+        }
+    }
+
+}

@@ -1,0 +1,71 @@
+﻿@page "/profile"
+
+@using Microsoft.AspNetCore.Authorization
+@using AUI.Services
+@using System.Security.Claims
+@inject NavigationManager Navigation
+@inject IAuthService AuthService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@attribute [Authorize]
+
+
+<h3>Profile</h3>
+<div>Submenu - General (Names), Personal, Contact, Security </div>
+<div>Profile picture</div>
+<div>
+
+    <div>First Name @FN</div>
+    <div>Last Name @LN</div>
+    <div>Middle Name @MN</div>
+    <div>Farm: @Farm</div>
+    <div>Task: @Task</div>
+</div>
+<div class="d-flex justify-content-between flex-row">
+    <button class="btn btn-outline-danger mb-2 " @onclick="LogOut">Log Out</button>
+    <button class="btn btn-outline-danger mb-2 ">Edit</button>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    private string FN { get; set; }
+    private string MN { get; set; }
+    private string LN { get; set; }
+    private string Farm { get; set; }
+    private string Task { get; set; }
+    private async Task LogOut(MouseEventArgs args)
+    {
+
+        await AuthService.Logout();
+        await localStorage.RemoveItemAsync("FarmID");
+        await localStorage.RemoveItemAsync("FarmStatus");
+        Navigation.NavigateTo("/");
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        //Current user data
+        FN = user.FindFirst(c => c.Type == ClaimTypes.GivenName)?.Value;
+        MN = user.FindFirst(c => c.Type == "MiddleName")?.Value;
+        LN = user.FindFirst(c => c.Type == ClaimTypes.Surname)?.Value;
+        Farm = user.FindFirst(c => c.Type == "Farm")?.Value;
+        var R = user.FindFirst(c => c.Type == ClaimTypes.Role)?.Value;
+
+        if (R == "Admin")
+        {
+            Task = "Adminstartor";
+        }
+        else if (R == "User")
+        {
+            Task = "General Worker";
+        }
+        else
+        {
+            Task = R;
+        }
+    }
+
+}

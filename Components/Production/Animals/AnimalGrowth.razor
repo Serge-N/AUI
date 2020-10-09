@@ -1,0 +1,471 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader;
+@using AUI.Shared.Classes.Production
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+<div class="btn-toolbar mb-1" role="toolbar">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#AddGrowth">+ Growth</button>
+        <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#EditGrowth">± Growth</button>
+        <button type="button" class="btn btn-outline-dark" data-toggle="modal" onclick ="ViewGrowth" data-target="#ViewGrowth">👁 Growth</button>
+    </div>
+</div>
+
+@if (Growth != null && Growth.CattleFK == 0)
+{
+    <div class="modal fade" id="AddGrowth" tabindex="-1" role="dialog" aria-labelledby="Save Animal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="AddAnimalTitle">Add @Animal Growth</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                @if (Animal == "Cattle" && Growth != null)
+                {
+                    <EditForm Model="@Growth" OnValidSubmit="@AddAnimalGrowth">
+                        <div class="modal-body">
+                            <DataAnnotationsValidator />
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleDoB">Date of Birth</label>
+                                <div class="col-sm-8">
+                                    <InputDate Id="CattleDoB" Class="form-control" @bind-Value="@Growth.DateOfBirth" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.DateOfBirth)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleBW">Birth Weight (Kg)</label>
+                                <div class="col-sm-8">
+                                    <InputNumber Id="CattleBW" Class="form-control" @bind-Value="@Growth.BirthWeight" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.BirthWeight)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleDoW">Date of Weaning</label>
+                                <div class="col-sm-8">
+                                    <InputDate Id="CattleDoW" Class="form-control" @bind-Value="@Growth.DateOfWeaning" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.DateOfWeaning)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleWeight">Weaning Weight (Kg)</label>
+                                <div class="col-sm-8">
+                                    <InputNumber Id="CattleWeight" Class="form-control" @bind-Value="@Growth.WeaningWeight" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.WeaningWeight)" />
+                                    </small>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattlDoP">Date of Purchase</label>
+                                <div class="col-sm-8">
+                                    <InputDate Id="CattleDoP" Class="form-control" @bind-Value="@Growth.DateOfPurchase" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.DateOfPurchase)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattlePP">Purchased (ZMW)</label>
+                                <div class="col-sm-8">
+                                    <InputNumber Id="CattlePP" Class="form-control" @bind-Value="@Growth.PurchaseValue" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.PurchaseValue)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleSeller">Supplier</label>
+                                <div class="col-sm-8">
+                                    <InputText Class="form-control" id="CattleSeller" @bind -Value="@Growth.Seller" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.Seller)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleDoS">Date of Sale</label>
+                                <div class="col-sm-8">
+                                    <InputDate Id="CattleDoS" Class="form-control" @bind-Value="@Growth.DateOfSale" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.DateOfSale)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleWeight">Sale Weight (Kg)</label>
+                                <div class="col-sm-8">
+                                    <InputNumber Id="CattleWeight" Class="form-control" @bind-Value="@Growth.SaleWeight" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.SaleWeight)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleSale">Sale Price (ZMW)</label>
+                                <div class="col-sm-8">
+                                    <InputNumber Id="CattleSale" Class="form-control" @bind-Value="@Growth.SalePrice" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.SalePrice)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleBuyer">Buyer</label>
+                                <div class="col-sm-8">
+                                    <InputText Class="form-control" id="CattleBuyer" @bind-Value="@Growth.Buyer" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.Buyer)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="CattleMode">Mode</label>
+                                <div class="col-sm-8">
+                                    <InputText Class="form-control" id="CattleMode" @bind-Value="@Growth.Mode" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.Mode)" />
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            @if (Message != null)
+                            {
+                                <span><b>@Message</b></span>
+                            }
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">Save</button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<div class="modal fade" id="EditGrowth" tabindex="-1" role="dialog" aria-labelledby="Edit Animal Growth" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="EditAnimalGrowth">Edit @Animal Growth</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @if (Animal == "Cattle" && Growth != null)
+            {
+                <EditForm Model="@Growth" OnValidSubmit="@EditAnimalGrowth">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Cattle_DoB">Date of Birth</label>
+                            <div class="col-sm-8">
+                                <InputDate Id="Cattle_DoB" Class="form-control" @bind-Value="@Growth.DateOfBirth" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Growth.DateOfBirth)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Cattle_BW">Birth Weight (Kg)</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="Cattle_BW" Class="form-control" @bind-Value="@Growth.BirthWeight" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Growth.BirthWeight)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Cattle_DoW">Date of Weaning</label>
+                            <div class="col-sm-8">
+                                <InputDate Id="Cattle_DoW" Class="form-control" @bind-Value="@Growth.DateOfWeaning" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Growth.DateOfWeaning)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Cattle_Weight">Weaning Weight (Kg)</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="Cattle_Weight" Class="form-control" @bind-Value="@Growth.WeaningWeight" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Growth.WeaningWeight)" />
+                                </small>
+                            </div>
+                        </div>
+                        @if (Growth.Seller != null)
+                        {
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="Cattle_DoP">Date of Purchase</label>
+                                <div class="col-sm-8">
+                                    <InputDate Id="Cattle_DoP" Class="form-control" @bind-Value="@Growth.DateOfPurchase" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.DateOfPurchase)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="Cattle_PP">Purchased (ZMW)</label>
+                                <div class="col-sm-8">
+                                    <InputNumber Id="Cattle_PP" Class="form-control" @bind-Value="@Growth.PurchaseValue" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.PurchaseValue)" />
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label" for="Cattle_Seller">Supplier</label>
+                                <div class="col-sm-8">
+                                    <InputText Class="form-control" id="Cattle_Seller" @bind-Value="@Growth.Seller" />
+                                    <small class="text-muted">
+                                        <ValidationMessage For="@(() => Growth.Seller)" />
+                                    </small>
+                                </div>
+                            </div>
+                        }
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Cattle_DoS">Date of Sale</label>
+                            <div class="col-sm-8">
+                                <InputDate Id="Cattle_DoS" Class="form-control" @bind-Value="@Growth.DateOfSale" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Growth.DateOfSale)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Cattle_Weight">Sale Weight (Kg)</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="Cattle_Weight" Class="form-control" @bind-Value="@Growth.SaleWeight" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Growth.SaleWeight)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Cattle_Sale">Sale Price (ZMW)</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="Cattle_Sale" Class="form-control" @bind-Value="@Growth.SalePrice" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Growth.SalePrice)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Cattle_Buyer">Buyer</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="Cattle_Buyer" @bind-Value="@Growth.Buyer" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Growth.Buyer)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Cattle_Mode">Mode</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="Cattle_Mode" @bind-Value="@Growth.Mode" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => Growth.Mode)" />
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        @if (Message != null)
+                        {
+                            <span><b>@Message</b></span>
+                        }
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ViewGrowth" tabindex="-1" role="dialog" aria-labelledby="Edit Animal Growth" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="EditAnimalGrowth">View @Animal Growth</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @if (Animal == "Cattle" && Growth != null)
+            {
+
+                <div class="modal-body">
+                    <p>Age : @age Years </p>
+                    <p>Weaning Period : @weaningPeriod Months</p>
+                    <p>Days on Farm : @farmDays Days</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    [Parameter]
+    public long ID { get; set; }
+    AUI.Shared.Classes.Production.Cows.Growth Growth = null;
+    bool FarmStatus;
+    string Message;
+    int? age;
+    int? weaningPeriod;
+    int? farmDays;
+
+    protected override async Task OnInitializedAsync()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+        var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+
+        if (Animal == "Cattle")
+        {
+            var singleGrowth = await Http.GetAsync($"api/Growths/{ID}");
+            if (singleGrowth.IsSuccessStatusCode)
+                Growth = singleGrowth.Content.ReadFromJsonAsync<AUI.Shared.Classes.Production.Cows.Growth>().Result;
+            else
+            {
+                Growth = new Shared.Classes.Production.Cows.Growth();
+                Growth.CattleFK = 0;
+            }
+        }
+    }
+
+    async Task AddAnimalGrowth()
+    {
+        Message = null;
+        if (FarmStatus)
+        {
+            if (Animal == "Cattle" && Growth.CattleFK == 0)
+            {
+                Message = null;
+                //post
+                Growth.CattleID = 0;
+                Growth.CattleFK = ID;
+                var response = await Http.PostAsJsonAsync<AUI.Shared.Classes.Production.Cows.Growth>($"api/Growths", Growth);
+                //analyse result
+                if (response.IsSuccessStatusCode)
+                    Message = $"Growth record has have been added";
+                else
+                    Message = $"Failed to add growth record";
+            }
+            else
+            {
+                Message = "You cannot add what already exists.";
+            }
+        }
+    }
+
+    async Task EditAnimalGrowth()
+    {
+        Message = null;
+        if (FarmStatus)
+            if (Animal == "Cattle")
+            {
+                //put
+                var response = await Http.PutAsJsonAsync<AUI.Shared.Classes.Production.Cows.Growth>($"api/Growths/{Growth.CattleID}", Growth);
+                //analyse result
+                if (response.IsSuccessStatusCode)
+                    Message = $"Growth have been updated";
+                else
+                    Message = $"Failed to update growth";
+            }
+  
+    }
+
+    void ViewGrowth()
+    {
+        if (Growth.CattleFK != 0)
+        {
+            age = null;
+            weaningPeriod = null;
+            farmDays = null;
+
+            var Today = DateTime.Now;
+            if (Growth.DateOfBirth != null)
+            {
+                //age in years
+                age = Today.Year - Growth.DateOfBirth.Value.Year;
+                if (Growth.DateOfWeaning != null)
+                    //weaning period in months
+                    weaningPeriod = Growth.DateOfWeaning.Value.Month - Growth.DateOfBirth.Value.Month;
+
+                //days on farm
+                //Check to see if it was born at the farm
+                if (Growth.PurchaseValue == null || Growth.PurchaseValue != 0)
+
+                    if (Growth.SalePrice == null)
+                    {
+                        var Days = Today - Growth.DateOfBirth;
+                        farmDays = Days.Value.Days;
+                    }
+                    else
+                    {
+                        //given it's sold
+                        var Days = Growth.DateOfSale - Growth.DateOfBirth;
+                        farmDays = Days.Value.Days;
+                    }
+
+                else
+                
+                    if (Growth.SalePrice == null)
+                    {
+                        var Days = Today - Growth.DateOfPurchase;
+                        farmDays = Days.Value.Days;
+                    }
+                    else
+                    {
+                        //given it's sold
+                        var Days = Growth.DateOfSale - Growth.DateOfPurchase;
+                        farmDays = Days.Value.Days;
+                    }
+            }
+        }
+
+    }
+}

@@ -1,0 +1,33 @@
+﻿@if (Animal.Equals("Cattle"))
+{
+    Address = "cattle/sales";
+}
+else if (Animal.Equals("Pigs"))
+{
+    Address = "pigs/sales";
+}
+else if (Animal.Equals("Goats"))
+{
+    Address = "goats/sales";
+}
+<div class="card">
+    <div class="card-header">
+        <div class="d-inline-flex"><b>Sales</b></div>
+        <div class="d-inline-flex">
+            <NavLink class="nav-link" href=@Address>
+                <span class="oi oi-chevron-right" aria-hidden="true" style="font-size: 10px;"></span>
+            </NavLink>
+        </div>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">Sold (All Time): </li>
+        <li class="list-group-item">Sold (This Year):</li>
+        <li class="list-group-item">Average Price (ZMW):</li>
+    </ul>
+</div>
+@code {
+    // Get the animal Type for better Rendering
+    [Parameter]
+    public string Animal { get; set; }
+    private string Address { get; set; }
+}

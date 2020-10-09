@@ -1,0 +1,30 @@
+﻿@if (Animal.Equals("Cattle"))
+{
+    Female = "Cows";
+}
+else if (Animal.Equals("Pigs"))
+{
+    Female = "Sows";
+}
+else if (Animal.Equals("Goats"))
+{
+    Female = "Does";
+}
+<div class="card border-info">
+    <div class="card-body">
+        <p class="card-text">Active</p>
+        <p class="card-text">On Heat</p>
+        <p class="card-text">Pregnant</p>
+    </div>
+    <div class="card-footer">
+        <small class="text-muted"><b>@Female</b></small>
+    </div>
+</div>
+@code {
+    // Get the animal Type for better Rendering
+    [Parameter]
+    public string Animal { get; set; }
+    private string Female { get; set; }
+    //The Titles and headers
+
+}

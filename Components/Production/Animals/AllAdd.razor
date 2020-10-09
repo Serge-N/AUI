@@ -1,0 +1,160 @@
+﻿@inject HttpClient Http
+@using Tewr.Blazor.FileReader;
+@using AUI.Shared.Classes.Production
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
+
+<div class="btn-toolbar mb-1" role="toolbar">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" data-toggle="modal" @onclick="Fire" data-target="#AddAnimal">+ @Animal</button>
+    </div>
+</div>
+
+
+<!-- Modal Animal Cow-->
+<div class="modal fade" id="AddAnimal" tabindex="-1" role="dialog" aria-labelledby="Save Animal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="AddAnimalTitle">Add @Animal</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @if (Animal == "Cow")
+            {
+                <EditForm Model="@cattle" OnValidSubmit="@AddAnimal">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleTag">Tag No.</label>
+                            <div class="col-sm-8">
+                                <InputNumber Id="CattleTag" Class="form-control" @bind-Value="@cattle.TagID" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => cattle.TagID)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleName">Name</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="CattleName" @bind-Value="@cattle.Name" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => cattle.Name)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleSex">Sex</label>
+                            <div class="col-sm-8">
+                                <InputSelect id="CatteSex" Class="form-control" @bind-Value="@cattle.Sex">
+                                    <option selected disabled value="">Gender</option>
+                                    @foreach (var sex in GenderCattle)
+                                        {
+                                        <option value="@sex">@sex</option>
+                                        }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleColor">Colour</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="CattleColor" @bind-Value="@cattle.Color" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => cattle.Color)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleBreed">Breed</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="CattleBreed" @bind-Value="@cattle.Breed" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => cattle.Breed)" />
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="CattleStatus">Status</label>
+                            <div class="col-sm-8">
+                                <InputText Class="form-control" id="CattleStatus" @bind-Value="@cattle.Status" />
+                                <small class="text-muted">
+                                    <ValidationMessage For="@(() => cattle.Status)" />
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        @if (Message != null)
+                        {
+                        <span><b>@Message</b></span>
+                        }
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </EditForm>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    private AUI.Shared.Classes.Production.Cows.Cattle cattle = new Shared.Classes.Production.Cows.Cattle();
+    bool FarmStatus;
+    private string Message;
+    private int PostProtector;
+    List<string> GenderCattle { get; } = new List<string>() {
+        "Castrated", "Bull", "Cow"
+    };
+    private async Task AddAnimal()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+        if (FarmStatus)
+        {
+            var FarmId = await localStorage.GetItemAsync<string>("FarmID");
+            if (Animal == "Cow")
+            {
+                //Configure
+                int ID;
+                int.TryParse(FarmId, out ID);
+                cattle.FarmID = ID;
+                cattle.CurrentValue = 0;
+
+                if (PostProtector == 1)
+                {
+                    //send
+                    var response = await Http.PostAsJsonAsync<AUI.Shared.Classes.Production.Cows.Cattle>("api/cattle", cattle);
+                    //lock posting
+                    PostProtector =2 ;
+
+                    //analyse result
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Message = $"Cattle Tagged {cattle.TagID} has been added";
+                    }
+                    else
+                        Message = $"Failed to add Cattle Tagged {cattle.TagID}";
+                }
+            }
+        }
+
+    }
+    private void Fire()
+    {
+        PostProtector = 1;
+    }
+}
