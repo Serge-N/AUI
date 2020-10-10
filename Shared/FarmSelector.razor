@@ -9,7 +9,7 @@
 @if (FarmStatus)
 {
     <div class="col-auto my-1">
-        <select class="form-control mr-sm-2" id="SelectFarm" @bind="ID" @onclick="IDSaver">
+        <select class="upper-shadow form-control mr-sm-2" id="SelectFarm" @bind="ID" @onclick="IDSaver">
             <option selected disabled value="">Choose Farm</option>
             @foreach (var farm in Farms)
             {

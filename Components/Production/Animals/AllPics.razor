@@ -40,7 +40,7 @@
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="Title">Title</label>
                         <div class="col-sm-8">
-                            <InputText Class="form-control" id="PicTitle" @bind-Value="@Pic.Title" />
+                            <InputText Class="form-control upper-shadow" id="PicTitle" @bind-Value="@Pic.Title" />
                             <small class="text-muted">
                                 <ValidationMessage For="@(() => Pic.Title)" />
                             </small>
@@ -87,7 +87,7 @@
                     <div class="modal-body">
 
                         <div class="col-auto my-1">
-                            <select class="form-control mr-sm-2" id="SelectImage" @bind="Removal.SelectedImage" required>
+                            <select class="form-control upper-shadow mr-sm-2" id="SelectImage" @bind="Removal.SelectedImage" required>
                                 <option selected disabled value="">Choose Picture</option>
                                 @foreach (var image in Removal.AvailablImages)
                                 {

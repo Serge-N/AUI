@@ -10,21 +10,19 @@
 
 <div class="row-fluid">
     <div class="d-flex justify-content-center align-items-center">
-        <div style="width: 25rem;  border-radius: 0px;background: #ffffff; box-shadow:  -5px -5px 85px #e8e8e8, 5px 5px 85px #ffffff; padding: 20px; margin-top: 100px;">
+        <div class="lower-shadow">
             <img style="height: 20em;" class="w-100" src="/media/logo/logo.png" alt="company logo">
             <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
                 <DataAnnotationsValidator />
 
 
                 <div class="form-group w-100">
-                    <InputText Id="email" type="email" placeholder="Enter email" Class="form-control" @bind-Value="@loginModel.Email"
-                               style="border-radius: 0px; background: #ffffff; box-shadow: inset -5px -5px 13px #c7c7c7, inset 5px 5px 13px #ffffff;" />
+                    <InputText Id="email" type="email" placeholder="Enter email" Class="form-control upper-shadow" @bind-Value="@loginModel.Email" />
                     <ValidationMessage For="@(() => loginModel.Email)" />
                 </div>
 
                 <div class="form-group w-100">
-                    <InputText Id="password" type="password" placeholder="Password" Class="form-control" @bind-Value="@loginModel.Password"
-                               style="border-radius: 0px; background: #ffffff; box-shadow: inset -5px -5px 13px #c7c7c7, inset 5px 5px 13px #ffffff;" />
+                    <InputText Id="password" type="password" placeholder="Password" Class="form-control upper-shadow" @bind-Value="@loginModel.Password" />
                     <ValidationMessage For="@(() => loginModel.Password)" />
                 </div>
 

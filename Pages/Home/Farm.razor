@@ -39,7 +39,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FarmName">Name </label>
                             <div class="col-sm-8">
-                                <InputText Class="form-control" id="FarmName" @bind-Value="@FarmAdd.Name" />
+                                <InputText Class="form-control upper-shadow" id="FarmName" @bind-Value="@FarmAdd.Name" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => FarmAdd.Name)" />
                                 </small>
@@ -49,7 +49,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FarmWidth">Width (m)</label>
                             <div class="col-sm-8">
-                                <InputNumber Id="FarmWidth" Class="form-control" @bind-Value="@FarmAdd.Width" />
+                                <InputNumber Id="FarmWidth" Class="form-control upper-shadow" @bind-Value="@FarmAdd.Width" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => FarmAdd.Width)" />
                                 </small>
@@ -59,7 +59,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FarmLength">Length (m)</label>
                             <div class="col-sm-8">
-                                <InputNumber Id="FarmLength" Class="form-control" @bind-Value="@FarmAdd.Length" />
+                                <InputNumber Id="FarmLength" Class="form-control upper-shadow" @bind-Value="@FarmAdd.Length" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => FarmAdd.Length)" />
                                 </small>
@@ -69,7 +69,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FarmIp">Intial Price(ZMW)</label>
                             <div class="col-sm-8">
-                                <InputNumber Id="FarmFIp" Class="form-control" @bind-Value="@FarmAdd.InitialCost" />
+                                <InputNumber Id="FarmFIp" Class="form-control upper-shadow" @bind-Value="@FarmAdd.InitialCost" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => FarmAdd.InitialCost)" />
                                 </small>
@@ -79,7 +79,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FarmPD">Purchase Date</label>
                             <div class="col-sm-8">
-                                <InputDate Id="FarmID" Class="form-control" @bind-Value="@FarmAdd.DoP" />
+                                <InputDate Id="FarmID" Class="form-control upper-shadow" @bind-Value="@FarmAdd.DoP" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => FarmAdd.DoP)" />
                                 </small>
@@ -89,7 +89,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FarmDistric">District </label>
                             <div class="col-sm-8">
-                                <InputText Id="FarmDistrict" Class="form-control" @bind-Value="@FarmAdd.District" />
+                                <InputText Id="FarmDistrict" Class="form-control upper-shadow" @bind-Value="@FarmAdd.District" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => FarmAdd.District)" />
                                 </small>
@@ -99,7 +99,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="SelectProvince">Province</label>
                             <div class="col-sm-8">
-                                <InputSelect id="SelectProvince" Class="form-control" @bind-Value="@FarmAdd.Province">
+                                <InputSelect id="SelectProvince" Class="form-control upper-shadow" @bind-Value="@FarmAdd.Province">
                                     <option selected disabled value="">Select Province</option>
                                     @foreach (var pro in Province)
                                         {
@@ -112,7 +112,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FarmOwner">Owner</label>
                             <div class="col-sm-8">
-                                <InputText Id="FarmOwner" Class="form-control" @bind-Value="@FarmAdd.Owner" />
+                                <InputText Id="FarmOwner" Class="form-control upper-shadow" @bind-Value="@FarmAdd.Owner" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => FarmAdd.Owner)" />
                                 </small>
@@ -156,7 +156,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FName">Name </label>
                             <div class="col-sm-8">
-                                <InputText Id="FName" placeholder="@Farms.Name" Class="form-control" @bind-Value="@Farms.Name" />
+                                <InputText Id="FName" placeholder="@Farms.Name" Class="form-control upper-shadow" @bind-Value="@Farms.Name" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => Farms.Name)" />
                                 </small>
@@ -166,7 +166,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FWidth">Width (m)</label>
                             <div class="col-sm-8">
-                                <InputNumber Id="FWidth" placeholder="@Farms.Width" Class="form-control" @bind-Value="@Farms.Width" />
+                                <InputNumber Id="FWidth" placeholder="@Farms.Width" Class="form-control upper-shadow" @bind-Value="@Farms.Width" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => Farms.Width)" />
                                 </small>
@@ -176,7 +176,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FLength">Length (m)</label>
                             <div class="col-sm-8">
-                                <InputNumber Id="FLength" placeholder="@Farms.Length" Class="form-control" @bind-Value="@Farms.Length" />
+                                <InputNumber Id="FLength" placeholder="@Farms.Length" Class="form-control upper-shadow" @bind-Value="@Farms.Length" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => Farms.Length)" />
                                 </small>
@@ -186,7 +186,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FIp">Intial Price(ZMW)</label>
                             <div class="col-sm-8">
-                                <InputNumber Id="FIp" placeholder="@Farms.InitialCost" Class="form-control" @bind-Value="@Farms.InitialCost" />
+                                <InputNumber Id="FIp" placeholder="@Farms.InitialCost" Class="form-control upper-shadow" @bind-Value="@Farms.InitialCost" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => Farms.InitialCost)" />
                                 </small>
@@ -196,7 +196,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FPD">Purchase Date</label>
                             <div class="col-sm-8">
-                                <InputDate Id="FID" placeholder="@Farms.DoP" Class="form-control" @bind-Value="@Farms.DoP" />
+                                <InputDate Id="FID" placeholder="@Farms.DoP" Class="form-control upper-shadow" @bind-Value="@Farms.DoP" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => Farms.DoP)" />
                                 </small>
@@ -206,7 +206,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FDistric">District </label>
                             <div class="col-sm-8">
-                                <InputText Id="FDistrict" placeholder="@Farms.District" Class="form-control" @bind-Value="@Farms.District" />
+                                <InputText Id="FDistrict" placeholder="@Farms.District" Class="form-control upper-shadow" @bind-Value="@Farms.District" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => Farms.District)" />
                                 </small>
@@ -216,7 +216,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="SelectPro">Province</label>
                             <div class="col-sm-8">
-                                <InputSelect id="SelectPro" Class="form-control" @bind-Value="@Farms.Province">
+                                <InputSelect id="SelectPro" Class="form-control upper-shadow" @bind-Value="@Farms.Province">
                                     <option selected disabled value="">Select Province</option>
                                     @foreach (var pro in Province)
                                         {
@@ -229,7 +229,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="FOwner">Owner </label>
                             <div class="col-sm-8">
-                                <InputText Id="FOwner" placeholder="@Farms.Owner" Class="form-control" @bind-Value="@Farms.Owner" />
+                                <InputText Id="FOwner" placeholder="@Farms.Owner" Class="form-control upper-shadow" @bind-Value="@Farms.Owner" />
                                 <small class="text-muted">
                                     <ValidationMessage For="@(() => Farms.Owner)" />
                                 </small>
@@ -266,7 +266,7 @@
                         <div class="form-group row pt-2">
                             <label class="col-sm-4 col-form-label" for="FN">Confirm Name </label>
                             <div class="col-sm-8">
-                                <InputText Id="FN" Class="form-control" @bind-Value="@FarmName" />
+                                <InputText Id="FN" Class="form-control upper-shadow" @bind-Value="@FarmName" />
                             </div>
                         </div>
                     </div>

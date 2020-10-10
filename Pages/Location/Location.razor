@@ -1,8 +1,28 @@
 ﻿@page "/location"
 
 @using Microsoft.AspNetCore.Authorization
+@using GoogleMapsComponents
+@using GoogleMapsComponents.Maps
 @attribute [Authorize]
-    <h3>Location</h3>
-@code {
 
+
+<GoogleMap @ref="@map1" Id="map1" Options="@mapOptions"></GoogleMap>
+
+@functions {
+    private GoogleMap map1;
+    private MapOptions mapOptions;
+
+    protected override void OnInitialized()
+    {
+        mapOptions = new MapOptions()
+        {
+            Zoom = 13,
+            Center = new LatLngLiteral()
+            {
+                Lat = 13.505892,
+                Lng = 100.8162
+            },
+            MapTypeId = MapTypeId.Roadmap
+        };
+    }
 }
