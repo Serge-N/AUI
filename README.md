@@ -7,3 +7,11 @@
 **Framework:** Blazor Wasm
 
 **Alternatives:** React, Angular and Vue
+
+**CSS Framework:** Bootstrap
+
+**Authenication:** Jwt Token with Claims
+
+**Others:**  Neuromorphic design
+
+#Description
