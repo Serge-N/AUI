@@ -16,7 +16,8 @@
 
 # Description
 In Africa record keeping and livestock management has always been a challenge. To solve this the school requested
-for software to help small scale farmers keep there records and manage there livestock. This has many benefits which may not be discussed here.
+for software to help small scale farmers keep their records and manage there livestock. 
+This has many benefits which may not be discussed here.
 Request a report from the school if you are interested. 
 
 It is important to stress that this application is a **Minimum Viable Product**, to use this in production would require
