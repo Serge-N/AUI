@@ -15,3 +15,12 @@
 **Others:**  Neuromorphic design
 
 # Description
+
+
+## How it looks
+
+![Login](/Screenshots/login.jpg)
+
+Home page without media
+
+![Login](/Screenshots/Home.jpg)
