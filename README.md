@@ -10,7 +10,7 @@
 
 **CSS Framework:** Bootstrap
 
-**Authenication:** Jwt Token with Claims
+**Authentication:** Jwt Token with Claims
 
 **Others:**  Neuromorphic design
 
