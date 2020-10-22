@@ -35,3 +35,5 @@ Home page without media
 
 
 ![Login](/Screenshots/Home.jpg)
+
+###### Images might be updated as quickly as the source code.
