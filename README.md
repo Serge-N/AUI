@@ -4,6 +4,8 @@
 
 **Type:** Single Page Application
 
+**Mode:** Client Side Rendering (CSR)
+
 **Framework:** Blazor Wasm
 
 **Alternatives:** React, Angular and Vue
