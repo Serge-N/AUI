@@ -1,20 +1,16 @@
 # Agrixem User Interface (AUI)
 
-**Client:** The University of Zambia, School of Engineering
-
-**Type:** Single Page Application
-
-**Mode:** Client Side Rendering (CSR)
-
-**Framework:** Blazor Wasm
-
-**Alternatives:** React, Angular and Vue
-
-**CSS Framework:** Bootstrap
-
-**Authentication:** Jwt Token with Claims
-
-**Others:**  Neuromorphic design
+Techonology | Selected Option
+------------ | -------------
+**Client** | The University of Zambia, School of Engineering
+**Type** | Single Page Application
+**Mode** | Client Side Rendering (CSR)
+**Service API** |	Representational state transfer (REST)
+**Framework** |Blazor Wasm
+**Alternatives** | React, Angular and Vue
+**CSS Framework** | Bootstrap
+**Authentication** | Jwt Token with Claims
+**Others** | Neuromorphic design
 
 # Description
 In Africa record keeping and livestock management has always been a challenge. To solve this the school requested
