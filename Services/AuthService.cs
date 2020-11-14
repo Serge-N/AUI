@@ -49,9 +49,11 @@ namespace AgrixemUI.Services
 
         public async Task<LoginResult> Login(LoginModel loginModel)
         {
+            Debug.WriteLine($"\n\n\n\nWas here...\n\n\n\n\n");
             LoginResult parsedResult = null;
           
-            var result = await _httpClient.PostAsJsonAsync("api/login", loginModel);
+            var result = await _httpClient.PostAsJsonAsync("api/Login/", loginModel);
+         
 
             if (result.IsSuccessStatusCode)
             {

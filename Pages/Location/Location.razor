@@ -6,8 +6,72 @@
 @attribute [Authorize]
 
 
+<div class="d-flex justify-content-between flex-row">
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-outline-success active">
+            <input type="radio" name="options" id="option1" autocomplete="off" checked> Cattle
+        </label>
+        <label class="btn  btn-outline-success ">
+            <input type="radio" name="options" id="option3" autocomplete="off"> Goats
+        </label>
+    </div>
+
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-outline-primary">
+            <input type="radio" name="option" id="option4" autocomplete="off" checked> + Tracker
+        </label>
+        <label class="btn btn-outline-primary">
+            <input type="radio" name="option" id="option5" autocomplete="off"> - Tracker
+        </label>
+    </div>
+</div>
 <GoogleMap @ref="@map1" Id="map1" Options="@mapOptions"></GoogleMap>
 
+<div class="d-flex justify-content-between flex-row mt-3">
+    <div class="col-sm col-md-6 col-lg-5 ml--2">
+        <div class="p-4 mb-4 w-100 ">
+            <p><b>Animals</b></p>
+            <div class="d-flex justify-content-between flex-row">
+                <div>Cattle</div>
+                <div>XXX</div>
+            </div>
+            <div class="d-flex justify-content-between flex-row my-3">
+                <div>Goats</div>
+                <div>XXX</div>
+            </div>
+            <div class="d-flex justify-content-between flex-row mb-3">
+                <div>Pigs</div>
+                <div>XXX</div>
+            </div>
+            <div class="d-flex justify-content-between flex-row">
+                <div>Chicken</div>
+                <div>XXX</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm col-md-6 col-lg-5">
+        <div class="p-4 mb-4 w-100">
+            <p><b>Animals</b></p>
+            <div class="d-flex justify-content-between flex-row">
+                <div>Cattle</div>
+                <div>XXX</div>
+            </div>
+            <div class="d-flex justify-content-between flex-row my-3">
+                <div>Goats</div>
+                <div>XXX</div>
+            </div>
+            <div class="d-flex justify-content-between flex-row mb-3">
+                <div>Pigs</div>
+                <div>XXX</div>
+            </div>
+            <div class="d-flex justify-content-between flex-row">
+                <div>Chicken</div>
+                <div>XXX</div>
+            </div>
+        </div>
+    </div>
+</div>
 @functions {
     private GoogleMap map1;
     private MapOptions mapOptions;

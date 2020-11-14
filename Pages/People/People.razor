@@ -1,8 +1,103 @@
 ﻿@page "/people"
 
 @using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@using Tewr.Blazor.FileReader
+@using AUI.Shared.Classes.Production
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IFileReaderService fileReaderService;
 @attribute [Authorize(Roles = "Admin")]
-    <h3>People</h3>
-@code {
+<h2>People</h2>
+<div class="d-flex justify-content-between flex-row mb-3">
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-outline-primary">
+            + Person
+        </label>
+    </div>
 
+    <div class="col-auto">
+        <select class="upper-shadow form-control" id="SelectWorker" @bind="selected" @onclick="OurPeope">
+            <option selected disabled value="">Worker Type</option>
+            <option class="col-form-label" value="0">Adminstartors</option>
+            <option class="col-form-label" value="@FarmID">Farm Workers</option>
+
+        </select>
+    </div>
+</div>
+
+@if (Humans == null)
+{
+    <p class="py-5 pl-5"><em>Calling farm people.....</em></p>
+}
+else
+{
+
+    <div class="table-responsive-sm">
+        <table class="table table-striped table-hover">
+            <caption>List of all Employees</caption>
+
+            <thead class="thead-dark">
+                <tr>
+                    <th>Sex</th>
+                    <th>NRC</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Fire</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var person in Humans)
+                {
+                    <tr>
+                        <td>@person.Sex</td>
+                        <td>@person.NRC</td>
+                        <td>@person.FirstName</td>
+                        <td>@person.LastName</td>
+                        <td>@person.PhoneNumber</td>
+                        <td>@person.Email</td>
+                        <td>@(person.PasswordHash == "User" ? "Worker" : person.PasswordHash)</td>
+                        <td><button>🗑</button></td>
+                    </tr>
+
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+
+}
+
+@code {
+    [Parameter]
+    public string Animal { get; set; }
+    bool FarmStatus;
+    string FarmID;
+    string selected;
+
+    List<AUI.Shared.Classes.User.Users> Humans = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        FarmStatus = await localStorage.GetItemAsync<bool>("FarmStatus");
+
+        if (FarmStatus)
+        {
+            FarmID = await localStorage.GetItemAsync<string>("FarmID");
+            Humans = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.User.Users>>($"api/Users/{FarmID}");
+            selected = FarmID;
+        }
+    }
+
+    protected async void OurPeope()
+    {
+        int id = int.Parse(selected.Trim());
+        if (FarmStatus)
+            Humans = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.User.Users>>($"api/Users/{id}");
+    }
 }
