@@ -13,6 +13,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
     <PackageReference Include="Tewr.Blazor.FileReader" Version="2.1.0.20274" />
+    <PackageReference Include="Verify.Blazor" Version="6.4.0" />
   </ItemGroup>
 
 </Project>

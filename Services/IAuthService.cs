@@ -1,7 +1,5 @@
 ﻿using AUI.Shared;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using AUI.Shared.Classes.User;
 using System.Threading.Tasks;
 
 namespace AUI.Services

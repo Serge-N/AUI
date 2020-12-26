@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace AUI.Shared.Classes.User
 {
@@ -12,6 +13,9 @@ namespace AUI.Shared.Classes.User
         public string LastName { get; set; }
         public string Sex { get; set; }
         public string NRC { get; set; }
+
+        [Required, StringLength(20)]
+        public DateTime DOB { get; set; }
         public string FullName { get; set; }
         public int FarmID { get; set; }
         public string Id { get; set; }

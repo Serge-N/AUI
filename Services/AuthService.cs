@@ -1,16 +1,14 @@
 ﻿
 using AUI.Services;
 using AUI.Shared;
+using AUI.Shared.Classes.User;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AgrixemUI.Services
@@ -78,8 +76,5 @@ namespace AgrixemUI.Services
             ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
             _httpClient.DefaultRequestHeaders.Authorization = null;
         }
-        
-    
-
     }
 }

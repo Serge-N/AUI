@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AUI.Shared
+namespace AUI.Shared.Classes.User
 {
     public class RegisterModel
     {
@@ -39,7 +39,7 @@ namespace AUI.Shared
 
         [DataType(DataType.Text)]
         [Display(Name = "Belong to Farm")]
-        public string Farm { get; set; }
+        public int FarmID { get; set; }
 
         [Required]
         [DataType(DataType.Text)]

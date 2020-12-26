@@ -19,7 +19,7 @@ namespace AUI
 
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri("https://agrixemapi.azurewebsites.net/") });
+            builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri("https://localhost:5001/") });
             
             builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 

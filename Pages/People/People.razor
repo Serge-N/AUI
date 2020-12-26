@@ -3,18 +3,21 @@
 @using Microsoft.AspNetCore.Authorization
 @inject HttpClient Http
 @using Tewr.Blazor.FileReader
-@using AUI.Shared.Classes.Production
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@using AUI.Shared.Classes.General
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject IFileReaderService fileReaderService;
+@using System.Diagnostics;
 @attribute [Authorize(Roles = "Admin")]
+
 <h2>People</h2>
 <div class="d-flex justify-content-between flex-row mb-3">
-    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-        <label class="btn btn-outline-primary">
-            + Person
-        </label>
+
+    <div class="btn-toolbar mb-1" role="toolbar">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#AddWorkers">+ People</button>
+        </div>
     </div>
 
     <div class="col-auto">
@@ -22,10 +25,171 @@
             <option selected disabled value="">Worker Type</option>
             <option class="col-form-label" value="0">Adminstartors</option>
             <option class="col-form-label" value="@FarmID">Farm Workers</option>
-
         </select>
     </div>
+
 </div>
+
+
+
+<div class="modal fade" id="AddWorkers" tabindex="-1" role="dialog" aria-labelledby="Add New Farm" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="AddWorkers">
+                    Add New Employee
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <EditForm Model="@Employee" OnValidSubmit="@AddPeople">
+                <div class="modal-body">
+                    <DataAnnotationsValidator />
+
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="FirstName">First Name </label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control upper-shadow" id="FirstName" @bind-Value="@Employee.FirstName" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Employee.FirstName)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="MiddleName">Middle Name </label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control upper-shadow" id="MiddleName" @bind-Value="@Employee.MiddleName" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Employee.MiddleName)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="SurnameName">Last Name </label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control upper-shadow" id="SurnameName" @bind-Value="@Employee.LastName" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Employee.LastName)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="Sex">Gender</label>
+                        <div class="col-sm-8">
+                            <InputSelect id="Sex" Class="form-control upper-shadow" @bind-Value="@Employee.Sex">
+                                <option selected disabled value="">Sex</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="DoB">Date of Birth</label>
+                        <div class="col-sm-8">
+                            <InputDate Id="DoB" Class="form-control upper-shadow" @bind-Value="@Employee.DOB" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Employee.DOB)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="nrc">NRC</label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control upper-shadow" id="nrc" @bind-Value="@Employee.NRC" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Employee.NRC)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="role">Role</label>
+                        <div class="col-sm-8">
+                            <InputSelect id="role" Class="form-control upper-shadow" @bind-Value="@Employee.Purpose">
+                                <option selected disabled value="">Role</option>
+                                <option value="Admin">Adminstartor</option>
+                                <option value="Manager">Manager</option>
+                                <option value="User">Worker</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    @if (Farms != null && Employee.Purpose !="Admin")
+                    {
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="Farm">Farm</label>
+                            <div class="col-sm-8">
+                                <InputSelect id="Farm" Class="form-control upper-shadow" @bind-Value="@Employee.FarmID">
+                                    @foreach (var farm in Farms)
+                                        {
+                                        <option value="@farm.ID">@farm.Name</option>
+                                        }
+                                </InputSelect>
+                            </div>
+                        </div>
+                    }
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="email">Email</label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control upper-shadow" id="email" @bind-Value="@Employee.Email" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Employee.Email)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="phone">Phone</label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control upper-shadow" id="phone" @bind-Value="@Employee.PhoneNumber" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Employee.PhoneNumber)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="phone">Password</label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control upper-shadow" id="phone" @bind-Value="@Employee.Password" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Employee.Password)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="phone">Confirm Password</label>
+                        <div class="col-sm-8">
+                            <InputText Class="form-control upper-shadow" id="phone" @bind-Value="@Employee.ConfirmPassword" />
+                            <small class="text-muted">
+                                <ValidationMessage For="@(() => Employee.ConfirmPassword)" />
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        @if (AddStatus != null)
+                        {
+                            <span class="pl-5"><b>@AddStatus</b></span>
+                        }
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-success" type="submit">Save</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
 
 @if (Humans == null)
 {
@@ -79,7 +243,10 @@ else
     bool FarmStatus;
     string FarmID;
     string selected;
+    private string AddStatus { get; set; }
+    private List<Farms> Farms;
 
+    private AUI.Shared.Classes.User.RegisterModel Employee { get; set; } = new AUI.Shared.Classes.User.RegisterModel();
     List<AUI.Shared.Classes.User.Users> Humans = null;
 
     protected override async Task OnInitializedAsync()
@@ -88,9 +255,13 @@ else
 
         if (FarmStatus)
         {
+            selected = FarmID;
             FarmID = await localStorage.GetItemAsync<string>("FarmID");
             Humans = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.User.Users>>($"api/Users/{FarmID}");
-            selected = FarmID;
+            Farms = await Http.GetFromJsonAsync<List<Farms>>("api/farms");
+
+            //Configure default ID
+            Employee.FarmID = 0;
         }
     }
 
@@ -98,6 +269,25 @@ else
     {
         int id = int.Parse(selected.Trim());
         if (FarmStatus)
-            Humans = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.User.Users>>($"api/Users/{id}");
+        {
+            try
+            {
+                Humans = await Http.GetFromJsonAsync<List<AUI.Shared.Classes.User.Users>>($"api/Users/{id}");
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Error: {e}");
+            }
+
+        }
+    }
+
+    private async Task AddPeople()
+    {
+        //Clear pevious Addstaus
+        AddStatus = null;
+
+        var add = await Http.PostAsJsonAsync<AUI.Shared.Classes.User.RegisterModel>($"api/Accounts", Employee);
+        AddStatus = add.IsSuccessStatusCode ? $"Added {Employee.LastName}" : $"Failed to add {Employee.LastName}";
     }
 }
